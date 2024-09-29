@@ -2,8 +2,15 @@
 
 Установка с [PDM](https://github.com/pdm-project/pdm):
 
-`pdm init`
+1. Клонировать проект
+2. Перейти в директорию проекта
+3. `pdm init`
+
+ - Если PyCharm не видит импорты библиотек - поменять окружение: Settings -> Project -> Python Interpreter -> Add -> Existing -> Интерпретатор из директории .venv данного проекта
 
 Запуск:
 
-`pdm run litestar run`
+1. `cd src/lunch`
+2. `pdm run litestar run`
+   
+   [Документация litestar: команда run](https://docs.litestar.dev/2/reference/cli.html#litestar-run)
