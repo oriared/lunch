@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>itc lunch</title>
+    <link rel="icon" href="static/favicon.ico">
+    <link rel="stylesheet" href="static/styles.css">
+    <script src="https://unpkg.com/htmx.org@1.8.4"></script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">i t c &ensp; l u n c h</div>
+        <div class="user-area">
+            <div class="user-info">
+                <strong>Ярослав</strong>
+            </div>
+            <button class="logout-btn">Выйти</button>
+        </div>
+    </div>
+    {% if 1 == 0 %}
+    <div class="login-container">
+        <h2>Вход</h2>
+        <form action="/login" method="POST">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" name="username" placeholder="Введите имя пользователя" required>
+
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password" placeholder="Введите пароль" required>
+
+            <input type="submit" value="Войти">
+
+            <a href="#" class="forgot-password">Забыли пароль?</a>
+        </form>
+    </div>
+    {% else %}
+    <div class="lunch-container">
+        <div class="previous-order">
+            <h2>Мои заказы</h2>
+            <button class="circle-button" hx-get="/order-form" hx-target="#orderBlock" hx-swap="outerHTML">+</button>
+        </div>
+        {% include 'empty-order-block.html' %}
+    </div>
+    {% endif %}
+    <footer>
+        &copy; all right
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+import datetime
+
+from project import dto
+from project.database import db, models
+
+
+def first_dishes() -> list[models.Dish]:
+    return db.first_dishes
+
+
+def get_standard_second_dishes() -> list[models.Dish]:
+    return [d for d in db.second_dishes if models.DishCategory(d.id, 3) in db.dish_categories]
+
+
+def get_constructor_second_dishes(part: str) -> list[models.Dish]:
+    if part == 'first':
+        return [d for d in db.second_dishes if models.DishCategory(d.id, 4) in db.dish_categories]
+    elif part == 'second':
+        return [d for d in db.second_dishes if models.DishCategory(d.id, 5) in db.dish_categories]
+
+
+def get_vegan_dishes() -> list[models.Dish]:
+    return [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
+
+
+def save_order(lunch: dto.Lunch) -> models.Order:
+    order = models.Order(id=1, date=datetime.date.today())
+    db.orders.append(order)
+    if lunch.first_dish:
+        order_first_dish = models.OrderDish(order_id=order.id, dish_id=int(lunch.first_dish), count=1)
+        db.order_dishes.append(order_first_dish)
+    if lunch.second_dish_first_part:
+        order_second_dish_first_part = models.OrderDish(
+            order_id=order.id,
+            dish_id=int(lunch.second_dish_first_part),
+            count=1,
+        )
+        db.order_dishes.append(order_second_dish_first_part)
+    if lunch.dish_mode == 'constructor' and lunch.second_dish_second_part:
+        order_second_dish_second_part = models.OrderDish(
+            order_id=order.id,
+            dish_id=int(lunch.second_dish_second_part),
+            count=1,
+        )
+        db.order_dishes.append(order_second_dish_second_part)
+    return order
+
+
+def get_order_dishes(order: models.Order) -> list[models.Dish]:
+    return [d for d in db.first_dishes + db.second_dishes if d.id in [od.dish_id for od in db.order_dishes]]

@@ -1,0 +1,22 @@
+<div class="select-second-dish">
+    <select name="second_dish_first_part">
+        <option value="" disabled selected>...</option>
+        {% if mode == 'constructor' %}
+            {% for dish in second_dishes_first_part %}
+                <option value="{{ dish.id }}">{{ dish.name }}</option>
+            {% endfor %}
+        {% else %}
+            {% for dish in second_dishes %}
+                <option value="{{ dish.id }}">{{ dish.name }}</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+</div>
+<div class="select-second-dish">
+    <select name="second_dish_second_part" {% if mode != 'constructor' %} disabled {% endif %}>
+        <option value="" disabled selected>...</option>
+        {% for dish in second_dishes_second_part %}
+            <option value="{{ dish.id }}">{{ dish.name }}</option>
+        {% endfor %}
+    </select>
+</div>
