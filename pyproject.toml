@@ -5,7 +5,9 @@ description = "Default template for PDM package"
 authors = [
     {name = "iar", email = "38orlov@gmail.com"},
 ]
-dependencies = []
+dependencies = [
+    "litestar[standard]>=2.12.1",
+]
 requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}

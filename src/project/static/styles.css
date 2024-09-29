@@ -1,0 +1,372 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f7ff;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Фиксированная шапка */
+.header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #d3d3d3;
+    width: 100%;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Логотип */
+.logo {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    font-size: 0.9em;
+    color: #666;
+    margin-right: 20px;
+}
+
+.logout-btn {
+    background-color: #ff6b6b;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.logout-btn:hover {
+    background-color: #e74c3c;
+}
+
+.login-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4a90e2;
+}
+
+.login-container label {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.login-container input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.login-container input[type="submit"]:hover {
+    background-color: #357abd;
+}
+
+.login-container .forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.login-container .forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Центрирование контейнера формы по вертикали */
+.lunch-container {
+    display: flex;
+    min-width: 800px;
+    flex-direction: column;
+    flex: 1; /* Занимаем всё оставшееся пространство */
+    margin-top: 90px;
+    justify-content: start;
+    align-items: center; /* Центрирование по вертикали */
+}
+
+.container {
+    position: relative;
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
+
+@keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+.previous-order {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    min-height: 100px;
+    width: 100%;
+    text-align: left;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.previous-order h2 {
+    color: #4a90e2;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.previous-order p {
+    margin: 5px 0;
+}
+
+.circle-button {
+    background-color: #f0f7ff;
+    border: 2px solid #4a90e2;
+    color: #4a90e2;
+    font-size: 24px;
+    font-weight: bold;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Круглая форма */
+    display: flex;
+    justify-content: center; /* Центрирование текста по горизонтали */
+    align-items: center;     /* Центрирование текста по вертикали */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.circle-button:hover {
+    background-color: #d3e5ff;
+    color: #4a90e2;
+}
+
+.circle-button:active {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.select-dish {
+    margin: 10px 0px 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.cancel-button {
+    position: absolute;
+    max-width: 90px;
+    top: 20px;
+    right: 20px;
+    display: inline-block;
+    background-color: white;
+    color: #e74c3c;
+    border: 2px solid #f29f96;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+    background-color: #f29f96; /* Темнее при наведении */
+    color: white
+}
+
+/* Стили для чекбокса в виде кнопки */
+.dish-option input {
+    display: none;
+}
+
+.dish-option .button-label {
+    background-color: #f0f7ff;
+    border: 2px solid #4a90e2;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 15px;
+    transition: background-color 0.3s ease;
+    color: #4a90e2;
+    display: inline-block;
+}
+
+.dish-option input:checked + .button-label {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.dish-mode {
+    display: flex;
+    justify-content: left;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.two-selects {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
+.radio-toggle {
+    display: flex;
+    justify-content: left; /* Центрирование кнопок */
+    margin-left: 15px;
+    padding-top: 10px;
+    align-items: flex-start;
+}
+
+.radio-toggle input[type="radio"] {
+    display: none; /* Скрываем стандартные радиокнопки */
+}
+
+.radio-button {
+    background-color: #f0f7ff;
+    border: 2px solid #4a90e2;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: #4a90e2;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-right: 10px;
+    text-align: center;
+}
+
+.radio-button:last-child {
+    margin-right: 0;
+}
+
+/* Стили для активной кнопки */
+input[type="radio"]:checked + .radio-button {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.radio-button:hover {
+    background-color: #d3e5ff;
+    color: #4a90e2;
+}
+
+.select-second-dish {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+
+input:checked + .slider {
+    background-color: #4a90e2;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+
+h1 {
+    font-size: 1.5em;
+    color: #4a90e2;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+label {
+    color: #666;
+}
+
+select, button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #d3d3d3;
+    background-color: #f9f9f9;
+    font-size: 1em;
+    outline: none;
+    transition: background-color 0.3s ease;
+}
+
+select:focus, button:hover {
+    background-color: #e6f0ff;
+}
+
+button {
+    background-color: #4a90e2;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #357ab7;
+}
+
+select option {
+    color: #333;
+}
+
+/* Фиксированный футер */
+footer {
+    background-color: #ffffff;
+    border-top: 1px solid #d3d3d3;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    font-size: 0.8em;
+    color: #999;
+}

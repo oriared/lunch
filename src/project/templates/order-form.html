@@ -1,0 +1,32 @@
+<div class="container" id="orderBlock">
+    <button class="cancel-button" hx-get="/empty-order-block" hx-target="#orderBlock" hx-swap="outerHTML">Отменить</button>
+    <h1>Заказ обеда</h1>
+
+    <div id="orderForm">
+        <form id="step1" hx-post="/save-order" hx-target="#orderBlock" hx-swap="outerHTML">
+            <label for="firstDish">Выберите первое блюдо:</label>
+            <div class="select-dish">
+                <select id="firstDish" name="first_dish">
+                    {% include 'first-dishes.html' %}
+                </select>
+                <label class="dish-option">
+                    <input type="checkbox" id="vegan" name="vegan" hx-get="/first-dishes" hx-target="#firstDish" hx-swap="innerHTML">
+                    <span class="button-label">Веганское</span>
+                </label>
+            </div>
+            <label>Выберите второе блюдо:</label>
+            <div class="select-dish">
+                <div class="two-selects" id="secondDishesSelects">
+                    {% include 'second-dishes.html' %}
+                </div>
+                <div class="radio-toggle">
+                    <input type="radio" id="standard" name="dish_mode" value="standard" checked hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
+                    <label for="standard" class="radio-button">Стандарт</label>
+                    <input type="radio" id="constructor" name="dish_mode" value="constructor" hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
+                    <label for="constructor" class="radio-button">Конструктор</label>
+                </div>
+            </div>
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
