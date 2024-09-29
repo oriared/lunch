@@ -1,7 +1,7 @@
 import datetime
 
-from project import dto
-from project.database import db, models
+import dto
+from database import db, models
 
 
 def first_dishes() -> list[models.Dish]:
