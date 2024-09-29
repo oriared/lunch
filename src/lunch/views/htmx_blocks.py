@@ -3,9 +3,8 @@ from litestar.contrib.htmx.response import HTMXTemplate
 from litestar import get, post
 from litestar.response import Template
 
-from project.database import queries
-from project import dto
-from project.database.queries import get_order_dishes
+from database import queries
+import dto
 
 
 @get(path='/order-form')

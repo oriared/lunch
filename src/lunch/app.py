@@ -6,10 +6,10 @@ from litestar.contrib.htmx.request import HTMXRequest
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
 
-from project.views import base, htmx_blocks
+from views import base, htmx_blocks
 
 
-static_files_handler = create_static_files_router(path='/static', directories=[Path('project/static')], name='static')
+static_files_handler = create_static_files_router(path='/static', directories=[Path('static')], name='static')
 
 route_handlers = [
     base.index,
@@ -21,7 +21,7 @@ route_handlers = [
     static_files_handler,
 ]
 
-template_config = TemplateConfig(directory=Path('project/templates'), engine=JinjaTemplateEngine)
+template_config = TemplateConfig(directory=Path('templates'), engine=JinjaTemplateEngine)
 
 
 app = Litestar(

@@ -1,4 +1,4 @@
-from project.database import models
+from database import models
 
 first_dishes = [
     models.Dish(1, 'Котлета'),
