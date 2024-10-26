@@ -10,6 +10,19 @@
 </head>
 <body>
     {% block body %}
+    <div class="header">
+        <div class="logo">i t c &ensp; l u n c h</div>
+        <div class="user-area">
+            {% if user %}
+                <div class="user-info">
+                    <strong>{{ user.username }}</strong>
+                </div>
+                <form action="/logout" method="POST">
+                    <button class="logout-btn" type="submit">Выйти</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
     {% endblock %}
     <footer>
         &copy; all right

@@ -4,6 +4,24 @@ import dto
 from database import db, models
 
 
+def get_user_by_username(username: str) -> dto.User | None:
+    for user in db.users:
+        if user.username == username:
+            break
+    else:
+        return
+    return user
+
+
+def get_user_by_id(user_id: int) -> dto.User | None:
+    for user in db.users:
+        if user.id == user_id:
+            break
+    else:
+        return
+    return user
+
+
 def first_dishes() -> list[models.Dish]:
     return db.first_dishes
 

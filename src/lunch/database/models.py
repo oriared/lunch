@@ -5,7 +5,8 @@ from dataclasses import dataclass
 @dataclass
 class User:
     id: int
-    name: str
+    username: str
+    password: str
     is_admin: bool = False
     is_active: bool = True
 

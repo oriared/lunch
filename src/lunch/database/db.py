@@ -1,5 +1,9 @@
 from database import models
 
+users = [
+    models.User(1, 'admin', 'admin', is_admin=True),
+]
+
 first_dishes = [
     models.Dish(1, 'Котлета'),
     models.Dish(2, 'Рыба'),
