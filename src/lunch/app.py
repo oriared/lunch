@@ -3,14 +3,14 @@ from pathlib import Path
 from litestar import Litestar
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.contrib.htmx.request import HTMXRequest
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar.security.session_auth import SessionAuth
 from litestar.middleware.session.server_side import ServerSideSessionBackend, ServerSideSessionConfig
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
 
 import utils
-from exception_handlers import authentication_error_handler
+from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from views import base, htmx_blocks
 from dto import User
 
@@ -38,11 +38,16 @@ session_auth = SessionAuth[User, ServerSideSessionBackend](
     exclude=['/login', '/schema', '/static/styles.css', '/static/favicon.ico'],
 )
 
+exception_handlers = {
+    NotAuthorizedException: authentication_error_handler,
+    NotFoundException: page_not_found_error_handler,
+}
+
 
 app = Litestar(
     route_handlers=route_handlers,
     request_class=HTMXRequest,
     template_config=template_config,
     on_app_init=[session_auth.on_app_init],
-    exception_handlers={NotAuthorizedException: authentication_error_handler},
+    exception_handlers=exception_handlers,
 )

@@ -63,6 +63,14 @@ body {
     background-color: #e74c3c;
 }
 
+.error-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    color: red;
+    text-align: center;
+}
+
 .login-container {
     background-color: white;
     padding: 40px;
