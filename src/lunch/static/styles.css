@@ -218,6 +218,31 @@ body {
     color: #0b6de0;
 }
 
+.lunch-block-menu-items {
+    display: flex;
+    justify-content: space-around;
+    background-color: #f0f7ff;
+    padding: 20px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.lunch-block-item-btn {
+    background-color: #f0f7ff;
+    color: #4a90e2;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.lunch-block-item-btn:hover {
+    background-color: #f0f7ff;
+    color: #0b6de0;
+}
+
 .lunch-container h2 {
     color: #4a90e2;
     margin-bottom: 10px;

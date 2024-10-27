@@ -7,6 +7,11 @@ from database import queries
 import dto
 
 
+@get(path='/empty')
+async def empty() -> str:
+    return ''
+
+
 @get(path='/users')
 async def users() -> HTMXTemplate:
     context = {'users': queries.get_users()}
@@ -20,11 +25,6 @@ async def order_form() -> Template:
         'second_dishes': queries.get_standard_second_dishes(),
     }
     return HTMXTemplate(template_name='order-form.html', context=context, push_url=False)
-
-
-@get(path='/empty-order-block')
-async def empty_order_block() -> Template:
-    return HTMXTemplate(template_name='empty-order-block.html', push_url=False)
 
 
 @get(path='/first-dishes')
