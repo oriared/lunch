@@ -21,7 +21,6 @@ body {
     height: 100%;
 }
 
-/* Фиксированная шапка */
 .header {
     background-color: #ffffff;
     border-bottom: 1px solid #d3d3d3;
@@ -37,7 +36,6 @@ body {
     z-index: 1000;
 }
 
-/* Логотип */
 .logo {
     text-decoration: none;
     font-size: 1.5em;
@@ -158,13 +156,7 @@ body {
     margin-bottom: 10px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
     width: 100%;
-}
-
-@keyframes fadeIn {
-  0% {opacity: 0;}
-  100% {opacity: 1;}
 }
 
 .lunch-container {
@@ -287,7 +279,6 @@ body {
     color: white
 }
 
-/* Стили для чекбокса в виде кнопки */
 .dish-option input {
     display: none;
 }
@@ -312,13 +303,6 @@ body {
 .dish-option input:checked + .button-label {
     background-color: #4a90e2;
     color: white;
-}
-
-.dish-mode {
-    display: flex;
-    justify-content: left;
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
 .two-selects {
@@ -356,7 +340,6 @@ body {
     margin-right: 0;
 }
 
-/* Стили для активной кнопки */
 input[type="radio"]:checked + .radio-button {
     background-color: #4a90e2;
     color: white;
@@ -424,7 +407,6 @@ select option {
     color: #333;
 }
 
-/* Фиксированный футер */
 footer {
     background-color: #ffffff;
     border-top: 1px solid #d3d3d3;
@@ -439,7 +421,7 @@ footer {
 }
 
 
-.user-table-container {
+.table-container {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
@@ -448,31 +430,31 @@ footer {
     width: 100%;
 }
 
-.user-table-container h2 {
+.table-container h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #4a90e2;
 }
 
-.user-table {
+table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
 
-.user-table th, .user-table td {
+table th, table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
 }
 
-.user-table th {
+table th {
     background-color: #f0f7ff;
     color: #333;
     font-weight: bold;
 }
 
-.user-table tr:hover {
+table tr:hover {
     background-color: #f9f9f9;
 }
 
@@ -482,7 +464,7 @@ footer {
     gap: 8px;
 }
 
-.user-table .action-button {
+table .action-button {
     display: inline-block;
     padding: 4px 10px;
     font-size: 14px;
@@ -494,7 +476,7 @@ footer {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.user-table .action-button:hover {
+table .action-button:hover {
     background-color: #d1d5da;
     color: #333;
 }

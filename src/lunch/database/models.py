@@ -15,7 +15,7 @@ class User:
 @dataclass
 class Order:
     id: int
-    # user_id: int
+    user_id: int
     date: datetime.date
 
 

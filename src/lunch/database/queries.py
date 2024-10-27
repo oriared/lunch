@@ -26,6 +26,10 @@ def get_users() -> list[models.User]:
     return db.users
 
 
+def get_user_orders(user: dto.User) -> list[models.Order]:
+    return [order for order in db.orders if order.user_id == user.id]
+
+
 def first_dishes() -> list[models.Dish]:
     return db.first_dishes
 
@@ -45,8 +49,8 @@ def get_vegan_dishes() -> list[models.Dish]:
     return [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
 
 
-def save_order(lunch: dto.Lunch) -> models.Order:
-    order = models.Order(id=1, date=datetime.date.today())
+def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
+    order = models.Order(id=len(db.orders) + 1, date=datetime.date.today(), user_id=user.id)
     db.orders.append(order)
     if lunch.first_dish:
         order_first_dish = models.OrderDish(order_id=order.id, dish_id=int(lunch.first_dish), count=1)

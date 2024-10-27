@@ -12,6 +12,12 @@ async def users() -> HTMXTemplate:
     return HTMXTemplate(template_name='users.html', context=context, push_url=False)
 
 
+@get(path='/my-orders')
+async def my_orders(request: HTMXRequest) -> HTMXTemplate:
+    context = {'orders': queries.get_user_orders(user=request.user)}
+    return HTMXTemplate(template_name='my-orders.html', context=context, push_url=False)
+
+
 @get(path='/order-form')
 async def order_form() -> HTMXTemplate:
     context = {
@@ -42,5 +48,5 @@ async def second_dishes(dish_mode: str) -> HTMXTemplate:
 async def save_order(request: HTMXRequest) -> HTMXTemplate:
     form = await request.form()
     lunch = dto.Lunch(**form)
-    queries.save_order(lunch)
+    queries.save_order(lunch=lunch, user=request.user)
     return HTMXTemplate(template_name='save-order.html', push_url=False)

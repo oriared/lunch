@@ -1,3 +1,4 @@
+import locale
 from pathlib import Path
 
 from litestar import Litestar
@@ -15,6 +16,8 @@ from views import base, htmx_blocks
 from dto import User
 
 
+locale.setlocale(locale.LC_ALL, ('ru_RU', 'UTF-8'))
+
 static_files_handler = create_static_files_router(path='/static', directories=[Path('static')], name='static')
 
 route_handlers = [
@@ -24,6 +27,7 @@ route_handlers = [
     base.index,
     base.empty,
     htmx_blocks.users,
+    htmx_blocks.my_orders,
     htmx_blocks.order_form,
     htmx_blocks.first_dishes,
     htmx_blocks.second_dishes,

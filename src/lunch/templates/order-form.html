@@ -3,7 +3,7 @@
     <h1>Заказ обеда</h1>
 
     <div id="orderForm">
-        <form id="step1" hx-post="/save-order" hx-target="#orderBlock" hx-swap="outerHTML">
+        <form id="step1" hx-post="/save-order" hx-target="#orderBlock" hx-swap="innerHTML">
             <label for="firstDish">Выберите первое блюдо:</label>
             <div class="select-dish">
                 <select id="firstDish" name="first_dish">
