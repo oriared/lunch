@@ -22,6 +22,10 @@ def get_user_by_id(user_id: int) -> dto.User | None:
     return user
 
 
+def get_users() -> list[models.User]:
+    return db.users
+
+
 def first_dishes() -> list[models.Dish]:
     return db.first_dishes
 

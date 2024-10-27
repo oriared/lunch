@@ -7,6 +7,7 @@ class User:
     id: int
     username: str
     password: str
+    joined_dt: datetime.datetime
     is_admin: bool = False
     is_active: bool = True
 

@@ -11,8 +11,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
     height: 100vh;
+}
+
+.body-content {
+    display: flex;
+    align-items: top;
+    padding-top: 70px;
+    height: 100%;
 }
 
 /* Фиксированная шапка */
@@ -33,6 +39,7 @@ body {
 
 /* Логотип */
 .logo {
+    text-decoration: none;
     font-size: 1.5em;
     font-weight: bold;
     color: #4a90e2;
@@ -44,7 +51,6 @@ body {
 }
 
 .user-info {
-    font-size: 0.9em;
     color: #666;
     margin-right: 20px;
 }
@@ -77,6 +83,8 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 400px;
+    margin-top: 55%;
+    max-height: 350px;
     width: 100%;
 }
 
@@ -131,22 +139,22 @@ body {
     text-decoration: underline;
 }
 
-/* Центрирование контейнера формы по вертикали */
-.lunch-container {
+.container {
     display: flex;
     min-width: 800px;
+    margin-right: 10px;
+    margin-left: 10px;
     flex-direction: column;
-    flex: 1; /* Занимаем всё оставшееся пространство */
-    margin-top: 90px;
     justify-content: start;
-    align-items: center; /* Центрирование по вертикали */
+    font-size: 0.9em;
+    color: #333;
 }
 
-.container {
+.order-container {
     position: relative;
-    background-color: #ffffff;
+    background-color: #f0f7ff;
     padding: 20px;
-    margin-top: 20px;
+    margin-bottom: 10px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 800px;
@@ -158,27 +166,70 @@ body {
   100% {opacity: 1;}
 }
 
-.previous-order {
+.lunch-container {
     background-color: #ffffff;
     padding: 15px;
+    margin-bottom: 55px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 800px;
-    min-height: 100px;
     width: 100%;
+    height: 100%;
     text-align: left;
     font-size: 0.9em;
     color: #333;
 }
 
-.previous-order h2 {
+.admin-container {
+    background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 55px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.admin-menu-items {
+    display: flex;
+    justify-content: space-around;
+    background-color: #f0f7ff;
+    padding: 20px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.admin-menu-item-btn {
+    background-color: #f0f7ff;
     color: #4a90e2;
-    font-size: 1.2em;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.admin-menu-item-btn:hover {
+    background-color: #f0f7ff;
+    color: #0b6de0;
+}
+
+.lunch-container h2 {
+    color: #4a90e2;
     margin-bottom: 10px;
 }
 
-.previous-order p {
+.lunch-container p {
     margin: 5px 0;
+}
+
+.admin-container h2 {
+    color: #4a90e2;
+    margin-bottom: 10px;
 }
 
 .circle-button {
@@ -377,4 +428,65 @@ footer {
     left: 0;
     font-size: 0.8em;
     color: #999;
+}
+
+
+.user-table-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
+
+.user-table-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4a90e2;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.user-table th, .user-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-table th {
+    background-color: #f0f7ff;
+    color: #333;
+    font-weight: bold;
+}
+
+.user-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+}
+
+.user-table .action-button {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 14px;
+    color: #555;
+    background-color: #f0f7ff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-table .action-button:hover {
+    background-color: #d1d5da;
+    color: #333;
 }

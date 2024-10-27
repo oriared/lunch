@@ -9,9 +9,8 @@
     <script src="https://unpkg.com/htmx.org@1.8.4"></script>
 </head>
 <body>
-    {% block body %}
     <div class="header">
-        <div class="logo">i t c &ensp; l u n c h</div>
+        <div><a href="/" class="logo">i t c &ensp; l u n c h</a></div>
         <div class="user-area">
             {% if user %}
                 <div class="user-info">
@@ -23,7 +22,10 @@
             {% endif %}
         </div>
     </div>
+    <div id="bodyBlock" class="body-content">
+    {% block body %}
     {% endblock %}
+    </div>
     <footer>
         &copy; all right
     </footer>

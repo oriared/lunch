@@ -11,7 +11,8 @@ from database import queries
 
 @get(path='/')
 async def index(request: 'Request[Any, Any, Any]') -> Template:
-    return Template(template_name='index.html', context={'user': request.user})
+    context = {'user': request.user}
+    return Template(template_name='index.html', context=context)
 
 
 @get(path='/login_page')

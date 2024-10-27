@@ -22,6 +22,7 @@ route_handlers = [
     base.login,
     base.logout,
     base.index,
+    htmx_blocks.users,
     htmx_blocks.order_form,
     htmx_blocks.empty_order_block,
     htmx_blocks.first_dishes,

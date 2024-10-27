@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block body %}
-    {{ super() }}
-    <div class="lunch-container">
-        <div class="previous-order">
-            <h2>Мои заказы</h2>
+    <div class="container">
+        <div class="lunch-container">
+            <h2>Мои обеды</h2>
             <button class="circle-button" hx-get="/order-form" hx-target="#orderBlock" hx-swap="outerHTML">+</button>
+            {% include 'empty-order-block.html' %}
         </div>
-        {% include 'empty-order-block.html' %}
     </div>
+    {% if user.is_admin %}
+    <div class="container">
+        {% include 'admin-panel.html' %}
+    </div>
+    {% endif %}
 {% endblock %}

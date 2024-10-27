@@ -7,6 +7,12 @@ from database import queries
 import dto
 
 
+@get(path='/users')
+async def users() -> HTMXTemplate:
+    context = {'users': queries.get_users()}
+    return HTMXTemplate(template_name='users.html', context=context, push_url=False)
+
+
 @get(path='/order-form')
 async def order_form() -> Template:
     context = {

@@ -1,0 +1,9 @@
+<div class="admin-container">
+ <h2>Администрирование</h2>
+    <div class="admin-menu-items">
+        <button type="button" class="admin-menu-item-btn" hx-get="/users" hx-target="#adminInline" hx-swap="innerHTML">Пользователи</button>
+        <button type="button" class="admin-menu-item-btn" hx-get="/orders" hx-target="#adminInline" hx-swap="innerHTML">Заказы</button>
+        <button type="button" class="admin-menu-item-btn" hx-get="/dishes" hx-target="#adminInline" hx-swap="innerHTML">Меню</button>
+    </div>
+    <div id="adminInline" class="admin-inline"></div>
+</div>
