@@ -13,14 +13,12 @@
             {% for order in orders %}
                 <tr>
                     <td>{{ order.date.strftime('%d.%m.%Y') }}</td>
-                    <td>{{ order.dishes }}</td>
+                    <td>{{ order.dishes_text }}</td>
                     <td>{{ order.comment }}</td>
                     <td>
                         {% if not order.is_editable %}
-                            <div class="action-buttons">
-                                <button class="action-button">Изменить</button>
-                                <button class="action-button">Отменить</button>
-                            </div>
+                            <button class="action-button">Изменить</button>
+                            <button class="action-button">Отменить</button>
                         {% endif %}
                 </td>
                 </tr>

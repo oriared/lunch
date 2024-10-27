@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 
 
@@ -11,7 +12,9 @@ class User:
 
 @dataclass
 class Lunch:
+    date: datetime.date
     dish_mode: str
     first_dish: str
     second_dish_first_part: str
     second_dish_second_part: str = ''
+    comment: str | None = None

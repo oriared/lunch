@@ -3,7 +3,7 @@
     <h1>Заказ обеда</h1>
 
     <div id="orderForm">
-        <form id="step1" hx-post="/save-order" hx-target="#orderBlock" hx-swap="innerHTML">
+        <form hx-post="/save-order" hx-target="#orderBlock" hx-swap="innerHTML">
             <label for="firstDish">Выберите первое блюдо:</label>
             <div class="select-dish">
                 <select id="firstDish" name="first_dish">
@@ -25,6 +25,10 @@
                     <input type="radio" id="constructor" name="dish_mode" value="constructor" hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
                     <label for="constructor" class="radio-button">Конструктор</label>
                 </div>
+            </div>
+            <div class="comment-to-order">
+                <label for="comment">Комментарий к заказу:</label>
+                <input id="comment" name="comment">
             </div>
             <button type="submit">Сохранить</button>
         </form>

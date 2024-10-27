@@ -258,6 +258,17 @@ body {
     justify-content: space-between;
 }
 
+.comment-to-order input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0px 20px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+}
+
+
 .cancel-button {
     position: absolute;
     max-width: 90px;
@@ -275,7 +286,7 @@ body {
 }
 
 .cancel-button:hover {
-    background-color: #f29f96; /* Темнее при наведении */
+    background-color: #f29f96;
     color: white
 }
 
@@ -313,14 +324,14 @@ body {
 
 .radio-toggle {
     display: flex;
-    justify-content: left; /* Центрирование кнопок */
+    justify-content: left;
     margin-left: 15px;
     padding-top: 10px;
     align-items: flex-start;
 }
 
 .radio-toggle input[type="radio"] {
-    display: none; /* Скрываем стандартные радиокнопки */
+    display: none;
 }
 
 .radio-button {

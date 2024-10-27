@@ -1,3 +1,5 @@
+import datetime
+
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
 from litestar import get, post
@@ -47,6 +49,9 @@ async def second_dishes(dish_mode: str) -> HTMXTemplate:
 @post(path='/save-order')
 async def save_order(request: HTMXRequest) -> HTMXTemplate:
     form = await request.form()
-    lunch = dto.Lunch(**form)
+
+    today = datetime.date.today()  # TODO брать из инпута
+    lunch = dto.Lunch(date=today, **form)
+
     queries.save_order(lunch=lunch, user=request.user)
     return HTMXTemplate(template_name='save-order.html', push_url=False)

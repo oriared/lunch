@@ -1,7 +1,9 @@
-import datetime
-
 import dto
 from database import db, models
+
+
+class ObjectDoesNotExists(Exception):
+    pass
 
 
 def get_user_by_username(username: str) -> dto.User | None:
@@ -50,8 +52,12 @@ def get_vegan_dishes() -> list[models.Dish]:
 
 
 def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
-    order = models.Order(id=len(db.orders) + 1, date=datetime.date.today(), user_id=user.id)
+    order_id = len(db.orders) + 1
+    dishes_text = get_lunch_dishes_text(lunch=lunch)
+
+    order = models.Order(id=order_id, user_id=user.id, date=lunch.date, dishes_text=dishes_text, comment=lunch.comment)
     db.orders.append(order)
+
     if lunch.first_dish:
         order_first_dish = models.OrderDish(order_id=order.id, dish_id=int(lunch.first_dish), count=1)
         db.order_dishes.append(order_first_dish)
@@ -74,3 +80,18 @@ def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
 
 def get_order_dishes(order: models.Order) -> list[models.Dish]:
     return [d for d in db.first_dishes + db.second_dishes if d.id in [od.dish_id for od in db.order_dishes]]
+
+
+def get_lunch_dishes_text(lunch: dto.Lunch) -> str:
+    dishes_ids = [int(i) for i in (lunch.first_dish, lunch.second_dish_first_part, lunch.second_dish_second_part) if i]
+    dishes = [get_dish(dish_id=i) for i in dishes_ids]
+    return ', '.join([dish.name for dish in dishes]).capitalize()
+
+
+def get_dish(dish_id: int) -> models.Dish:
+    for dish in db.dishes:
+        if dish.id == dish_id:
+            break
+    else:
+        raise ObjectDoesNotExists
+    return dish

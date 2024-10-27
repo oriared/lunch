@@ -28,6 +28,8 @@ second_dishes = [
     models.Dish(14, 'Булгур с овощами'),
 ]
 
+dishes = first_dishes + second_dishes
+
 categories = [
     models.Category(1, 'Веган', None),
     models.Category(2, 'Вторые блюда', None),

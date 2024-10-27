@@ -17,6 +17,8 @@ class Order:
     id: int
     user_id: int
     date: datetime.date
+    dishes_text: str
+    comment: str | None = None
 
 
 @dataclass
