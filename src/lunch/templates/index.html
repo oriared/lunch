@@ -3,7 +3,7 @@
     <div class="container">
         {% include 'lunch-block.html' %}
     </div>
-    {% if user.is_admin %}
+    {% if request.user.is_admin %}
     <div class="container">
         {% include 'admin-panel.html' %}
     </div>

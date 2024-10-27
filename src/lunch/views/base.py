@@ -15,8 +15,7 @@ async def empty() -> str:
 
 @get(path='/')
 async def index(request: 'Request[Any, Any, Any]') -> Template:
-    context = {'user': request.user}
-    return Template(template_name='index.html', context=context)
+    return Template(template_name='index.html')
 
 
 @get(path='/login_page')

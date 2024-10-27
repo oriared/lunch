@@ -4,6 +4,7 @@ from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
 from litestar import get, post
 
+import consts
 from database import queries
 import dto
 
@@ -38,9 +39,9 @@ async def first_dishes(vegan: str | None = None) -> HTMXTemplate:
 @get(path='/second-dishes')
 async def second_dishes(dish_mode: str) -> HTMXTemplate:
     context = {'mode': dish_mode}
-    if dish_mode == 'standard':
+    if dish_mode == consts.DishMode.STANDARD:
         context['second_dishes'] = queries.get_standard_second_dishes()
-    elif dish_mode == 'constructor':
+    elif dish_mode == consts.DishMode.CONSTRUCTOR:
         context['second_dishes_first_part'] = queries.get_constructor_second_dishes(part='first')
         context['second_dishes_second_part'] = queries.get_constructor_second_dishes(part='second')
     return HTMXTemplate(template_name='second-dishes.html', context=context, push_url=False)

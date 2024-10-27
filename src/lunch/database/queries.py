@@ -1,3 +1,4 @@
+import consts
 import dto
 from database import db, models
 
@@ -68,7 +69,7 @@ def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
             count=1,
         )
         db.order_dishes.append(order_second_dish_first_part)
-    if lunch.dish_mode == 'constructor' and lunch.second_dish_second_part:
+    if lunch.dish_mode == consts.DishMode.CONSTRUCTOR and lunch.second_dish_second_part:
         order_second_dish_second_part = models.OrderDish(
             order_id=order.id,
             dish_id=int(lunch.second_dish_second_part),
