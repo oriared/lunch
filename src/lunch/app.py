@@ -22,13 +22,13 @@ route_handlers = [
     base.login,
     base.logout,
     base.index,
+    base.empty,
     htmx_blocks.users,
     htmx_blocks.order_form,
     htmx_blocks.first_dishes,
     htmx_blocks.second_dishes,
     htmx_blocks.save_order,
     static_files_handler,
-    htmx_blocks.empty,
 ]
 
 template_config = TemplateConfig(directory=Path('templates'), engine=JinjaTemplateEngine)

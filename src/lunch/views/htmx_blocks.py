@@ -1,15 +1,9 @@
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
 from litestar import get, post
-from litestar.response import Template
 
 from database import queries
 import dto
-
-
-@get(path='/empty')
-async def empty() -> str:
-    return ''
 
 
 @get(path='/users')
@@ -19,7 +13,7 @@ async def users() -> HTMXTemplate:
 
 
 @get(path='/order-form')
-async def order_form() -> Template:
+async def order_form() -> HTMXTemplate:
     context = {
         'dishes': queries.first_dishes(),
         'second_dishes': queries.get_standard_second_dishes(),
@@ -28,13 +22,13 @@ async def order_form() -> Template:
 
 
 @get(path='/first-dishes')
-async def first_dishes(vegan: str | None = None) -> Template:
+async def first_dishes(vegan: str | None = None) -> HTMXTemplate:
     dishes = queries.get_vegan_dishes() if vegan else queries.first_dishes()
     return HTMXTemplate(template_name='first-dishes.html', context={'dishes': dishes}, push_url=False)
 
 
 @get(path='/second-dishes')
-async def second_dishes(dish_mode: str) -> Template:
+async def second_dishes(dish_mode: str) -> HTMXTemplate:
     context = {'mode': dish_mode}
     if dish_mode == 'standard':
         context['second_dishes'] = queries.get_standard_second_dishes()
@@ -45,7 +39,7 @@ async def second_dishes(dish_mode: str) -> Template:
 
 
 @post(path='/save-order')
-async def save_order(request: HTMXRequest) -> Template:
+async def save_order(request: HTMXRequest) -> HTMXTemplate:
     form = await request.form()
     lunch = dto.Lunch(**form)
     order = queries.save_order(lunch)

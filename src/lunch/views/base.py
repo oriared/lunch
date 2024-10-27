@@ -9,6 +9,11 @@ import utils
 from database import queries
 
 
+@get(path='/empty')
+async def empty() -> str:
+    return ''
+
+
 @get(path='/')
 async def index(request: 'Request[Any, Any, Any]') -> Template:
     context = {'user': request.user}

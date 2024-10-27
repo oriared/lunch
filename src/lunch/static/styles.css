@@ -63,6 +63,7 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.9em;
+    transition: background-color 0.3s ease;
 }
 
 .logout-btn:hover {
@@ -152,7 +153,7 @@ body {
 
 .order-container {
     position: relative;
-    background-color: #f0f7ff;
+    background-color: #ffffff;
     padding: 20px;
     margin-bottom: 10px;
     border-radius: 10px;
@@ -211,6 +212,7 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .admin-menu-item-btn:hover {
@@ -236,6 +238,7 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .lunch-block-item-btn:hover {
@@ -255,32 +258,6 @@ body {
 .admin-container h2 {
     color: #4a90e2;
     margin-bottom: 10px;
-}
-
-.circle-button {
-    background-color: #f0f7ff;
-    border: 2px solid #4a90e2;
-    color: #4a90e2;
-    font-size: 24px;
-    font-weight: bold;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%; /* Круглая форма */
-    display: flex;
-    justify-content: center; /* Центрирование текста по горизонтали */
-    align-items: center;     /* Центрирование текста по вертикали */
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.circle-button:hover {
-    background-color: #d3e5ff;
-    color: #4a90e2;
-}
-
-.circle-button:active {
-    background-color: #4a90e2;
-    color: white;
 }
 
 .select-dish {
@@ -325,6 +302,11 @@ body {
     transition: background-color 0.3s ease;
     color: #4a90e2;
     display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.dish-option .button-label:hover {
+    background-color: #e6f0ff;
 }
 
 .dish-option input:checked + .button-label {
@@ -367,6 +349,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
     margin-right: 10px;
     text-align: center;
+    transition: background-color 0.3s ease;
 }
 
 .radio-button:last-child {
