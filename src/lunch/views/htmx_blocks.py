@@ -42,5 +42,5 @@ async def second_dishes(dish_mode: str) -> HTMXTemplate:
 async def save_order(request: HTMXRequest) -> HTMXTemplate:
     form = await request.form()
     lunch = dto.Lunch(**form)
-    order = queries.save_order(lunch)
+    queries.save_order(lunch)
     return HTMXTemplate(template_name='save-order.html', push_url=False)

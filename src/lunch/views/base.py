@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Any
 
 from litestar import get, Request, post
