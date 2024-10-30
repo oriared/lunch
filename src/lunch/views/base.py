@@ -13,7 +13,7 @@ async def empty() -> str:
 
 
 @get(path='/')
-async def index(request: 'Request[Any, Any, Any]') -> Template:
+async def index() -> Template:
     return Template(template_name='index.html')
 
 

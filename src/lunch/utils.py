@@ -1,13 +1,16 @@
 import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import dto
 from database import models, queries
-from litestar.connection import ASGIConnection
+
+if TYPE_CHECKING:
+    from litestar.connection import ASGIConnection
 
 
 async def retrieve_user_handler(
-    session: dict[str, Any], connection: 'ASGIConnection[Any, Any, Any, Any]',
+    session: dict[str, Any],
+    connection: 'ASGIConnection[Any, Any, Any, Any]',  # noqa: ARG001
 ) -> dto.User | None:
     user_id = session.get('user_id')
     return queries.get_user_by_id(user_id=user_id) if user_id else None

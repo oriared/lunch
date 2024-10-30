@@ -3,7 +3,7 @@ import dto
 from database import db, models
 
 
-class ObjectDoesNotExists(Exception):
+class ObjectDoesNotExistsError(Exception):
     pass
 
 
@@ -12,7 +12,7 @@ def get_user_by_username(username: str) -> dto.User | None:
         if user.username == username:
             break
     else:
-        return
+        return None
     return user
 
 
@@ -21,7 +21,7 @@ def get_user_by_id(user_id: int) -> dto.User | None:
         if user.id == user_id:
             break
     else:
-        return
+        return None
     return user
 
 
@@ -44,8 +44,9 @@ def get_standard_second_dishes() -> list[models.Dish]:
 def get_constructor_second_dishes(part: str) -> list[models.Dish]:
     if part == 'first':
         return [d for d in db.second_dishes if models.DishCategory(d.id, 4) in db.dish_categories]
-    elif part == 'second':
+    if part == 'second':
         return [d for d in db.second_dishes if models.DishCategory(d.id, 5) in db.dish_categories]
+    return []
 
 
 def get_vegan_dishes() -> list[models.Dish]:
@@ -79,10 +80,6 @@ def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
     return order
 
 
-def get_order_dishes(order: models.Order) -> list[models.Dish]:
-    return [d for d in db.first_dishes + db.second_dishes if d.id in [od.dish_id for od in db.order_dishes]]
-
-
 def get_lunch_dishes_text(lunch: dto.Lunch) -> str:
     dishes_ids = [i for i in (lunch.first_dish, lunch.second_dish_first_part, lunch.second_dish_second_part) if i]
     dishes = [get_dish(dish_id=int(i)) for i in dishes_ids]
@@ -94,5 +91,5 @@ def get_dish(dish_id: int) -> models.Dish:
         if dish.id == dish_id:
             break
     else:
-        raise ObjectDoesNotExists
+        raise ObjectDoesNotExistsError
     return dish
