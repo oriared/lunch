@@ -1,9 +1,15 @@
 <div class="order-container" id="orderBlock">
     <button class="cancel-button" hx-get="/empty" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
-    <h1>Заказ обеда</h1>
-
     <div id="orderForm">
         <form hx-post="/save-order" hx-target="#orderBlock" hx-swap="innerHTML">
+            <h1>
+                Заказ обеда на
+                <select id="orderDate" name="order_date" class="date-select">
+                    {% for date in date_choices %}
+                    <option value="{{ date.isoformat() }}">{{ date.strftime('%d.%m') }}</option>
+                    {% endfor %}
+                </select>
+            </h1>
             <label for="firstDish">Выберите первое блюдо:</label>
             <div class="select-dish">
                 <select id="firstDish" name="first_dish">

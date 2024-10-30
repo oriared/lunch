@@ -252,6 +252,29 @@ body {
     margin-bottom: 10px;
 }
 
+.date-select {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    padding: 0;
+    appearance: none;
+    margin-left: 5px;
+    max-width: 150px;
+    width: auto;
+}
+
+.date-select:focus {
+    outline: none;
+    border-bottom: 1px solid #4a90e2; /* Подчеркивание при фокусе */
+}
+
+.date-select option {
+    color: #333; /* Цвет текста для опций */
+}
+
 .select-dish {
     margin: 10px 0px 20px;
     display: flex;
@@ -272,6 +295,7 @@ body {
 .cancel-button {
     position: absolute;
     max-width: 90px;
+    width: auto;
     top: 20px;
     right: 20px;
     display: inline-block;

@@ -5,8 +5,9 @@ from litestar.contrib.htmx.response import HTMXTemplate
 from litestar import get, post
 
 import consts
-from database import queries
 import dto
+import utils
+from database import queries
 
 
 @get(path='/users')
@@ -24,6 +25,7 @@ async def my_orders(request: HTMXRequest) -> HTMXTemplate:
 @get(path='/order-form')
 async def order_form() -> HTMXTemplate:
     context = {
+        'date_choices': utils.get_order_date_choices(),
         'dishes': queries.first_dishes(),
         'second_dishes': queries.get_standard_second_dishes(),
     }
@@ -51,8 +53,15 @@ async def second_dishes(dish_mode: str) -> HTMXTemplate:
 async def save_order(request: HTMXRequest) -> HTMXTemplate:
     form = await request.form()
 
-    today = datetime.date.today()  # TODO брать из инпута
-    lunch = dto.Lunch(date=today, **form)
+    order_date = datetime.date.fromisoformat(form['order_date'])
+    lunch = dto.Lunch(
+        date=order_date,
+        dish_mode=form['dish_mode'],
+        first_dish=form['first_dish'],
+        second_dish_first_part=form['second_dish_first_part'],
+        second_dish_second_part=form.get('second_dish_second_part', ''),
+        comment=form.get('comment', ''),
+    )
 
     queries.save_order(lunch=lunch, user=request.user)
     return HTMXTemplate(template_name='save-order.html', push_url=False)
