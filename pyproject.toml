@@ -7,7 +7,7 @@ authors = [
 ]
 dependencies = [
     "litestar[standard]>=2.12.1",
-    "wemake-python-styleguide>=0.19.2",
+    "ruff>=0.7.1",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -16,3 +16,44 @@ license = {text = "MIT"}
 
 [tool.pdm]
 distribution = false
+
+
+[tool.ruff]
+line-length = 120
+exclude = [
+    '.cache/*',
+    '.venv',
+]
+
+[tool.ruff.lint]
+select = [  # https://docs.astral.sh/ruff/rules/
+    'F',  # pyflakes
+    'E',  # pycodestyle errors
+    'W',  # pycodestyle warnings
+    'I',  # isort
+    'N',  # pep8-naming
+    'Q',  # quotes
+    'R',  # refactor
+    'UP',  # pyupgrade
+    'S',  # bandit
+    'COM',  # commas
+    'TID',  # tidy imports
+    'ANN',  # annotations
+    'T20',  # print
+    'B',  # bugbear
+    'SIM',  # simplify,
+    'ICN',  # imports
+    'RET',  # return
+    'TCN',  # type checking
+    'ARG',  # arguments
+    'C4',  # comprehensions
+    'C90',  # complexity
+    'RUF',  # ruff-specific rules
+    'ISC',  # implicit-str-concat
+]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = 'single'
+
+[tool.ruff.format]
+quote-style = 'single'
