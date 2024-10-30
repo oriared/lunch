@@ -1,20 +1,18 @@
 import locale
 from pathlib import Path
 
+import utils
+from dto import User
+from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from litestar import Litestar
-from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.contrib.htmx.request import HTMXRequest
+from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.exceptions import NotAuthorizedException, NotFoundException
-from litestar.security.session_auth import SessionAuth
 from litestar.middleware.session.server_side import ServerSideSessionBackend, ServerSideSessionConfig
+from litestar.security.session_auth import SessionAuth
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
-
-import utils
-from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from views import base, htmx_blocks
-from dto import User
-
 
 locale.setlocale(locale.LC_ALL, ('ru_RU', 'UTF-8'))
 

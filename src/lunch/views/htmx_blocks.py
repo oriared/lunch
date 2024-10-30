@@ -1,13 +1,12 @@
 import datetime
 
-from litestar.contrib.htmx.request import HTMXRequest
-from litestar.contrib.htmx.response import HTMXTemplate
-from litestar import get, post
-
 import consts
 import dto
 import utils
 from database import queries
+from litestar import get, post
+from litestar.contrib.htmx.request import HTMXRequest
+from litestar.contrib.htmx.response import HTMXTemplate
 
 
 @get(path='/users')

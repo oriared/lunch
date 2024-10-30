@@ -1,6 +1,6 @@
-from litestar.response import Redirect, Template
 from litestar.connection import Request
 from litestar.exceptions import NotAuthorizedException, NotFoundException
+from litestar.response import Redirect, Template
 
 
 def authentication_error_handler(_: Request, exc: NotAuthorizedException) -> Redirect:

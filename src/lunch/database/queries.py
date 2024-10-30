@@ -84,8 +84,8 @@ def get_order_dishes(order: models.Order) -> list[models.Dish]:
 
 
 def get_lunch_dishes_text(lunch: dto.Lunch) -> str:
-    dishes_ids = [int(i) for i in (lunch.first_dish, lunch.second_dish_first_part, lunch.second_dish_second_part) if i]
-    dishes = [get_dish(dish_id=i) for i in dishes_ids]
+    dishes_ids = [i for i in (lunch.first_dish, lunch.second_dish_first_part, lunch.second_dish_second_part) if i]
+    dishes = [get_dish(dish_id=int(i)) for i in dishes_ids]
     return ', '.join([dish.name for dish in dishes]).capitalize()
 
 

@@ -1,11 +1,10 @@
 from typing import Any
 
-from litestar import get, Request, post
-from litestar.exceptions import NotAuthorizedException
-from litestar.response import Redirect, Template
-
 import utils
 from database import queries
+from litestar import Request, get, post
+from litestar.exceptions import NotAuthorizedException
+from litestar.response import Redirect, Template
 
 
 @get(path='/empty')
@@ -26,7 +25,6 @@ async def login_page() -> Template:
 @post(path='/login')
 async def login(request: 'Request[Any, Any, Any]') -> Redirect:
     form = await request.form()
-
     user = queries.get_user_by_username(username=form['username'])
 
     if not user or not utils.check_password(user=user, password=form['password']):
