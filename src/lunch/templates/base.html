@@ -12,9 +12,9 @@
     <div class="header">
         <div><a href="/" class="logo">i t c &ensp; l u n c h</a></div>
         <div class="user-area">
-            {% if user %}
+            {% if "user" in request.scope %}
                 <div class="user-info">
-                    <strong>{{ user.username }}</strong>
+                    <strong>{{ request.user.username }}</strong>
                 </div>
                 <form action="/logout" method="POST">
                     <button class="logout-btn" type="submit">Выйти</button>
