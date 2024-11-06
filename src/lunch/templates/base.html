@@ -14,7 +14,7 @@
         <div class="user-area">
             {% if "user" in request.scope %}
                 <div class="user-info">
-                    <strong>{{ request.user.username }}</strong>
+                    <strong>{{ request.user.name or request.user.username }}</strong>
                 </div>
                 <form action="/logout" method="POST">
                     <button class="logout-btn" type="submit">Выйти</button>

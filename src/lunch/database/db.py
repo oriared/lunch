@@ -3,10 +3,10 @@ import datetime
 from database import models
 
 users = [
-    models.User(1, 'admin', 'admin', joined_dt=datetime.datetime(2024, 10, 20, 10, 47), is_admin=True),
-    models.User(2, 'iar', 'admin', joined_dt=datetime.datetime(2024, 10, 20, 10, 30), is_admin=False),
-    models.User(3, 'abandoned', 'admin', joined_dt=datetime.datetime(2024, 10, 16, 14, 15), is_admin=False),
-    models.User(4, 'dzhamil', 'admin', joined_dt=datetime.datetime(2024, 10, 14, 20, 22), is_admin=False),
+    models.User(1, 'admin', 'admin', datetime.datetime(2024, 10, 20, 10, 47), is_admin=True),
+    models.User(2, 'iar', 'admin', datetime.datetime(2024, 10, 20, 10, 30), is_admin=False, name='Ярослав Орлов'),
+    models.User(3, 'abandoned', 'admin', datetime.datetime(2024, 10, 16, 14, 15), is_admin=False),
+    models.User(4, 'dzhamil', 'admin', datetime.datetime(2024, 10, 14, 20, 22), is_admin=False, name='Джамиль'),
 ]
 
 first_dishes = [

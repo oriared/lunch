@@ -10,6 +10,7 @@ class User:
     joined_dt: datetime.datetime
     is_admin: bool = False
     is_active: bool = True
+    name: str = ''
 
 
 @dataclass
