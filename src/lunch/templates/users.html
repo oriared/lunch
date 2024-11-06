@@ -14,13 +14,12 @@
             {% for user in users %}
                 <tr>
                     <td>{{ user.username }}</td>
-                    <td>Иванов Иван Иванович</td>
-                    <td>{{ user.is_active }}</td>
-                    <td>{{ user.is_admin }}</td>
                     <td>{{ user.name }}</td>
+                    <td>{{ "Да" if user.is_active else " Нет" }}</td>
+                    <td>{{ "Да" if user.is_admin else "Нет" }}</td>
                     <td>
                     <div class="action-buttons">
-                        <button class="action-button">Сменить пароль</button>
+                        <button class="action-button">Редактировать</button>
                         <button class="action-button">{% if user.is_active %}Заблокировать{% else %} Разблокировать {% endif %}</button>
                     </div>
                 </td>
