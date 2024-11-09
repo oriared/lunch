@@ -4,9 +4,9 @@
         <form hx-post="/save-order" hx-target="#orderBlock" hx-swap="innerHTML">
             <h1>
                 Заказ обеда на
-                <select id="orderDate" name="order_date" class="date-select">
+                <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form" hx-target="#orderBlock" hx-swap="innerHTML">
                     {% for date in date_choices %}
-                    <option value="{{ date.isoformat() }}">{{ date.strftime('%d.%m') }}</option>
+                    <option value="{{ date.isoformat() }}" {% if selected_date == date %} selected {% endif %}>{{ date.strftime('%d.%m') }}</option>
                     {% endfor %}
                 </select>
             </h1>
@@ -16,7 +16,7 @@
                     {% include 'first-dishes.html' %}
                 </select>
                 <label class="dish-option">
-                    <input type="checkbox" id="vegan" name="vegan" hx-get="/first-dishes" hx-target="#firstDish" hx-swap="innerHTML">
+                    <input type="checkbox" id="vegan" name="vegan" value=true hx-get="/first-dishes" hx-target="#firstDish" hx-swap="innerHTML">
                     <span class="button-label">Веганское</span>
                 </label>
             </div>
@@ -26,15 +26,15 @@
                     {% include 'second-dishes.html' %}
                 </div>
                 <div class="radio-toggle">
-                    <input type="radio" id="standard" name="dish_mode" value="STANDARD" checked hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
+                    <input type="radio" id="standard" name="dish_mode" value="STANDARD" {% if selected_dish_mode == "STANDARD" %} checked {% endif %} hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
                     <label for="standard" class="radio-button">Стандарт</label>
-                    <input type="radio" id="constructor" name="dish_mode" value="CONSTRUCTOR" hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
+                    <input type="radio" id="constructor" name="dish_mode" value="CONSTRUCTOR" {% if selected_dish_mode == "CONSTRUCTOR" %} checked {% endif %} hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
                     <label for="constructor" class="radio-button">Конструктор</label>
                 </div>
             </div>
             <div class="comment-to-order">
                 <label for="comment">Комментарий к заказу:</label>
-                <input id="comment" name="comment">
+                <input id="comment" name="comment" value="{{ comment or '' }}">
             </div>
             <button type="submit">Сохранить</button>
         </form>

@@ -1,6 +1,7 @@
 import datetime
 from typing import TYPE_CHECKING, Any
 
+import consts
 import dto
 from database import models, queries
 
@@ -42,3 +43,12 @@ def get_next_week_work_days() -> list[datetime.date]:
     next_monday = tomorrow + datetime.timedelta(days=7 - today.isoweekday())
 
     return [next_monday + datetime.timedelta(days=day_index) for day_index in range(5)]
+
+
+def get_dish_mode(dish: models.Dish) -> str:
+    if dish in queries.get_standard_second_dishes():
+        return consts.DishMode.STANDARD
+    if dish in queries.get_constructor_second_dishes():
+        return consts.DishMode.CONSTRUCTOR
+
+    return consts.DishMode.STANDARD

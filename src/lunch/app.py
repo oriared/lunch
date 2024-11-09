@@ -30,6 +30,7 @@ route_handlers = [
     htmx_blocks.first_dishes,
     htmx_blocks.second_dishes,
     htmx_blocks.save_order,
+    htmx_blocks.cancel_order,
     static_files_handler,
 ]
 

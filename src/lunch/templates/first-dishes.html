@@ -1,4 +1,4 @@
 <option value="" disabled selected>...</option>
 {% for dish in dishes %}
-<option value="{{ dish.id }}">{{ dish.name }}</option>
+<option value="{{ dish.id }}" {% if dish == selected_first_dish %} selected {% endif %}>{{ dish.name }}</option>
 {% endfor %}

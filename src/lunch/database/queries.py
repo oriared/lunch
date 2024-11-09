@@ -1,3 +1,5 @@
+import datetime
+
 import consts
 import dto
 from database import db, models
@@ -33,7 +35,51 @@ def get_user_orders(user: dto.User) -> list[models.Order]:
     return [order for order in db.orders if order.user_id == user.id]
 
 
-def first_dishes() -> list[models.Dish]:
+def get_orders_by_date(date: datetime.date, orders: list[models.Order] | None = None) -> list[models.Order]:
+    if orders is None:
+        orders = db.orders
+    return [order for order in orders if order.date == date]
+
+
+def get_order_dishes(order: models.Order) -> list[models.Dish]:
+    return [get_dish(dish_id=od.dish_id) for od in db.order_dishes if od.order_id == order.id]
+
+
+def get_order_first_dish(order: models.Order) -> models.Dish | None:
+    dishes = get_order_dishes(order=order)
+    for dish in dishes:
+        if dish in get_first_dishes():
+            return dish
+    return None
+
+
+def get_order_second_dish(order: models.Order) -> models.Dish | None:
+    dishes = get_order_dishes(order=order)
+    for dish in dishes:
+        if dish in get_standard_second_dishes():
+            return dish
+    return None
+
+
+def get_order_second_dish_first_part(order: models.Order) -> models.Dish | None:
+    dishes_ids = [dish.id for dish in get_order_dishes(order=order)]
+    second_dish_first_part_ids = [dc.dish_id for dc in db.dish_categories if dc.category_id in (2, 4)]
+    for dish_id in dishes_ids:
+        if dish_id in second_dish_first_part_ids:
+            return get_dish(dish_id)
+    return None
+
+
+def get_order_second_dish_second_part(order: models.Order) -> models.Dish | None:
+    dishes_ids = [dish.id for dish in get_order_dishes(order=order)]
+    second_dish_second_part_ids = [dc.dish_id for dc in db.dish_categories if dc.category_id == 5]
+    for dish_id in dishes_ids:
+        if dish_id in second_dish_second_part_ids:
+            return get_dish(dish_id)
+    return None
+
+
+def get_first_dishes() -> list[models.Dish]:
     return db.first_dishes
 
 
@@ -41,20 +87,28 @@ def get_standard_second_dishes() -> list[models.Dish]:
     return [d for d in db.second_dishes if models.DishCategory(d.id, 3) in db.dish_categories]
 
 
-def get_constructor_second_dishes(part: str) -> list[models.Dish]:
+def get_constructor_second_dishes(part: str | None = None) -> list[models.Dish]:
     if part == 'first':
         return [d for d in db.second_dishes if models.DishCategory(d.id, 4) in db.dish_categories]
     if part == 'second':
         return [d for d in db.second_dishes if models.DishCategory(d.id, 5) in db.dish_categories]
-    return []
+    return get_constructor_second_dishes(part='first') + get_constructor_second_dishes(part='second')
 
 
 def get_vegan_dishes() -> list[models.Dish]:
     return [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
 
 
+def get_order(date: datetime.date, user: dto.User) -> models.Order:
+    return get_orders_by_date(date=date, orders=get_user_orders(user=user))[0]
+
+
 def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
-    order_id = len(db.orders) + 1
+    user_orders = get_orders_by_date(date=lunch.date, orders=get_user_orders(user=user))
+    if user_orders:
+        delete_order(order=user_orders[0])
+
+    order_id = max([order.id for order in db.orders], default=0) + 1
     dishes_text = get_lunch_dishes_text(lunch=lunch)
 
     order = models.Order(id=order_id, user_id=user.id, date=lunch.date, dishes_text=dishes_text, comment=lunch.comment)
@@ -93,3 +147,7 @@ def get_dish(dish_id: int) -> models.Dish:
     else:
         raise ObjectDoesNotExistsError
     return dish
+
+
+def delete_order(order: models.Order) -> None:
+    db.orders.remove(order)
