@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 
 import utils
@@ -13,8 +14,9 @@ async def empty() -> str:
 
 
 @get(path='/')
-async def index() -> Template:
-    return Template(template_name='index.html')
+async def index(request: Request) -> Template:
+    context = {'orders': queries.get_user_orders(user=request.user), 'today': datetime.date.today()}
+    return Template(template_name='index.html', context=context)
 
 
 @get(path='/login_page')

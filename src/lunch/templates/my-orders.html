@@ -16,7 +16,7 @@
                     <td>{{ order.dishes_text }}</td>
                     <td>{{ order.comment }}</td>
                     <td>
-                        {% if not order.is_editable %}
+                        {% if order.date > today %}
                             <button class="action-button" hx-get="/order-form?order_date={{ order.date }}" hx-target="#orderBlock" hx-swap="innerHTML">Изменить</button>
                             <button class="action-button" hx-post="/cancel-order?order_date={{ order.date }}" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
                         {% endif %}

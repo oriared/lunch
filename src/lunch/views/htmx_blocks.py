@@ -18,7 +18,7 @@ async def users() -> HTMXTemplate:
 
 @get(path='/my-orders')
 async def my_orders(request: HTMXRequest) -> HTMXTemplate:
-    context = {'orders': queries.get_user_orders(user=request.user)}
+    context = {'orders': queries.get_user_orders(user=request.user), 'today': datetime.date.today()}
     return HTMXTemplate(template_name='my-orders.html', context=context, push_url=False)
 
 
@@ -58,6 +58,7 @@ async def order_form(
 
             context.update(
                 {
+                    'order': order,
                     'selected_first_dish': queries.get_order_first_dish(order),
                     'selected_second_dish': queries.get_order_second_dish(order),
                     'selected_second_dish_first_part': selected_second_dish_first_part,
@@ -106,7 +107,9 @@ async def save_order(request: HTMXRequest) -> HTMXTemplate:
     context = {
         'orders': queries.get_user_orders(user=request.user),
         'updated_order': order,
+        'today': datetime.date.today(),
     }
+
     return HTMXTemplate(template_name='my-orders.html', context=context, push_url=False)
 
 

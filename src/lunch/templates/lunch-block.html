@@ -4,5 +4,7 @@
         <button type="button" class="lunch-block-item-btn" hx-get="/my-orders" hx-target="#orderBlock" hx-swap="innerHTML">Мои заказы</button>
         <button type="button" class="lunch-block-item-btn" hx-get="/order-form" hx-target="#orderBlock" hx-swap="innerHTML">Заказать</button>
     </div>
-    <div id="orderBlock"></div>
+    <div id="orderBlock">
+        {% include 'my-orders.html' %}
+    </div>
 </div>
