@@ -515,3 +515,7 @@ table .action-button:hover {
     background-color: #d1d5da;
     color: #333;
 }
+
+.highlight-row {
+    background-color: #e3fbe3;
+}

@@ -11,7 +11,7 @@
         </thead>
         <tbody>
             {% for order in orders %}
-                <tr>
+                <tr {% if order == updated_order %} class="highlight-row" {% endif %}>
                     <td>{{ order.date.strftime('%d.%m.%Y') }}</td>
                     <td>{{ order.dishes_text }}</td>
                     <td>{{ order.comment }}</td>

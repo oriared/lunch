@@ -101,8 +101,13 @@ async def save_order(request: HTMXRequest) -> HTMXTemplate:
         comment=form.get('comment', ''),
     )
 
-    queries.save_order(lunch=lunch, user=request.user)
-    return HTMXTemplate(template_name='save-order.html', push_url=False)
+    order = queries.save_order(lunch=lunch, user=request.user)
+
+    context = {
+        'orders': queries.get_user_orders(user=request.user),
+        'updated_order': order,
+    }
+    return HTMXTemplate(template_name='my-orders.html', context=context, push_url=False)
 
 
 @post(path='/cancel-order')
