@@ -100,21 +100,32 @@ def get_vegan_dishes() -> list[models.Dish]:
     return [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
 
 
-def get_order(date: datetime.date, user: dto.User) -> models.Order:
-    return get_orders_by_date(date=date, orders=get_user_orders(user=user))[0]
+def get_order(order_id: int) -> models.Order:
+    try:
+        return next(order for order in db.orders if order.id == order_id)
+    except IndexError as e:
+        raise ObjectDoesNotExistsError from e
 
 
-def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
-    user_orders = get_orders_by_date(date=lunch.date, orders=get_user_orders(user=user))
-    if user_orders:
-        delete_order(order=user_orders[0])
-
+def create_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
     order_id = max([order.id for order in db.orders], default=0) + 1
     dishes_text = get_lunch_dishes_text(lunch=lunch)
 
     order = models.Order(id=order_id, user_id=user.id, date=lunch.date, dishes_text=dishes_text, comment=lunch.comment)
     db.orders.append(order)
 
+    save_order_dishes(order=order, lunch=lunch)
+    return order
+
+
+def update_order(order: models.Order, lunch: dto.Lunch) -> models.Order:
+    order.dishes_text = get_lunch_dishes_text(lunch=lunch)
+    order.comment = lunch.comment
+    save_order_dishes(order=order, lunch=lunch)
+    return order
+
+
+def save_order_dishes(order: models.Order, lunch: dto.Lunch) -> None:
     if lunch.first_dish:
         order_first_dish = models.OrderDish(order_id=order.id, dish_id=int(lunch.first_dish), count=1)
         db.order_dishes.append(order_first_dish)
@@ -132,7 +143,6 @@ def save_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
             count=1,
         )
         db.order_dishes.append(order_second_dish_second_part)
-    return order
 
 
 def get_lunch_dishes_text(lunch: dto.Lunch) -> str:

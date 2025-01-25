@@ -25,12 +25,25 @@ async def my_orders(request: HTMXRequest) -> HTMXTemplate:
 @get(path='/order-form')
 async def order_form(
     request: HTMXRequest,
+    order_id: int | None = None,
     order_date: datetime.date | None = None,
 ) -> HTMXTemplate:
     date_choices = utils.get_order_date_choices()
-    selected_date = order_date
-    if not selected_date and date_choices:
+    order = queries.get_order(order_id=order_id) if order_id else None
+
+    if order:
+        selected_date = order.date
+    elif order_date:
+        selected_date = order_date
+    elif date_choices:
         selected_date = date_choices[0]
+    else:
+        selected_date = None
+
+    if selected_date and not order:
+        user_orders = queries.get_orders_by_date(date=selected_date, orders=queries.get_user_orders(user=request.user))
+        if user_orders:
+            order = user_orders[0]
 
     context = {
         'date_choices': date_choices,
@@ -42,31 +55,27 @@ async def order_form(
         'selected_dish_mode': consts.DishMode.STANDARD,
     }
 
-    if selected_date:
-        user_orders = queries.get_orders_by_date(date=selected_date, orders=queries.get_user_orders(user=request.user))
-        if user_orders:
-            order = user_orders[0]
-            selected_second_dish_first_part = queries.get_order_second_dish_first_part(order)
-            selected_second_dish_second_part = queries.get_order_second_dish_second_part(order)
+    if order:
+        selected_second_dish_first_part = queries.get_order_second_dish_first_part(order)
+        selected_second_dish_second_part = queries.get_order_second_dish_second_part(order)
+        if selected_second_dish_first_part:
+            dish_mode = utils.get_dish_mode(selected_second_dish_first_part)
+        elif selected_second_dish_second_part:
+            dish_mode = utils.get_dish_mode(selected_second_dish_second_part)
+        else:
+            dish_mode = consts.DishMode.STANDARD
 
-            if selected_second_dish_first_part:
-                dish_mode = utils.get_dish_mode(selected_second_dish_first_part)
-            elif selected_second_dish_second_part:
-                dish_mode = utils.get_dish_mode(selected_second_dish_second_part)
-            else:
-                dish_mode = consts.DishMode.STANDARD
-
-            context.update(
-                {
-                    'order': order,
-                    'selected_first_dish': queries.get_order_first_dish(order),
-                    'selected_second_dish': queries.get_order_second_dish(order),
-                    'selected_second_dish_first_part': selected_second_dish_first_part,
-                    'selected_second_dish_second_part': selected_second_dish_second_part,
-                    'selected_dish_mode': dish_mode,
-                    'comment': order.comment,
-                }
-            )
+        context.update(
+            {
+                'order': order,
+                'selected_first_dish': queries.get_order_first_dish(order),
+                'selected_second_dish': queries.get_order_second_dish(order),
+                'selected_second_dish_first_part': selected_second_dish_first_part,
+                'selected_second_dish_second_part': selected_second_dish_second_part,
+                'selected_dish_mode': dish_mode,
+                'comment': order.comment,
+            }
+        )
 
     return HTMXTemplate(template_name='order-form.html', context=context, push_url=False)
 
@@ -89,7 +98,7 @@ async def second_dishes(dish_mode: str) -> HTMXTemplate:
 
 
 @post(path='/save-order')
-async def save_order(request: HTMXRequest) -> HTMXTemplate:
+async def save_order(request: HTMXRequest, order_id: int | None = None) -> HTMXTemplate:
     form = await request.form()
 
     order_date = datetime.date.fromisoformat(form['order_date'])
@@ -101,8 +110,11 @@ async def save_order(request: HTMXRequest) -> HTMXTemplate:
         second_dish_second_part=form.get('second_dish_second_part', ''),
         comment=form.get('comment', ''),
     )
-
-    order = queries.save_order(lunch=lunch, user=request.user)
+    if order_id:
+        order = queries.get_order(order_id=order_id)
+        queries.update_order(order=order, lunch=lunch)
+    else:
+        order = queries.create_order(lunch=lunch, user=request.user)
 
     context = {
         'orders': queries.get_user_orders(user=request.user),
@@ -114,8 +126,8 @@ async def save_order(request: HTMXRequest) -> HTMXTemplate:
 
 
 @post(path='/cancel-order')
-async def cancel_order(request: HTMXRequest, order_date: datetime.date) -> Redirect:
-    order = queries.get_order(date=order_date, user=request.user)
+async def cancel_order(order_id: int) -> Redirect:
+    order = queries.get_order(order_id=order_id)
     queries.delete_order(order=order)
 
     return Redirect('/my-orders')

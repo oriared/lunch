@@ -1,7 +1,7 @@
 <div class="order-container" id="orderBlock">
     <button class="cancel-button" hx-get="/empty" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
     <div id="orderForm">
-        <form hx-post="/save-order" hx-target="#orderBlock" hx-swap="innerHTML">
+        <form hx-post="/save-order{% if order %}?order_id={{ order.id }}{% endif %}" hx-target="#orderBlock" hx-swap="innerHTML">
             <h1>
                 Заказ обеда на
                 <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form" hx-target="#orderBlock" hx-swap="innerHTML">

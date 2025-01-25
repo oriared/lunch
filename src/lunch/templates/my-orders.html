@@ -17,8 +17,8 @@
                     <td>{{ order.comment }}</td>
                     <td>
                         {% if order.date > today %}
-                            <button class="action-button" hx-get="/order-form?order_date={{ order.date }}" hx-target="#orderBlock" hx-swap="innerHTML">Изменить</button>
-                            <button class="action-button" hx-post="/cancel-order?order_date={{ order.date }}" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
+                            <button class="action-button" hx-get="/order-form?order_id={{ order.id }}" hx-target="#orderBlock" hx-swap="innerHTML">Изменить</button>
+                            <button class="action-button" hx-post="/cancel-order?order_id={{ order.id }}" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
                         {% endif %}
                 </td>
                 </tr>
