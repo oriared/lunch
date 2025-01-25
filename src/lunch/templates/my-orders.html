@@ -1,5 +1,4 @@
 <div class="table-container">
-    <h2>Мои заказы</h2>
     <table>
         <thead>
             <tr>
@@ -17,8 +16,8 @@
                     <td>{{ order.comment }}</td>
                     <td>
                         {% if order.date > today %}
-                            <button class="action-button" hx-get="/order-form?order_id={{ order.id }}" hx-target="#orderBlock" hx-swap="innerHTML">Изменить</button>
-                            <button class="action-button" hx-post="/cancel-order?order_id={{ order.id }}" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
+                            <button class="action-button" hx-get="/order-form?order_id={{ order.id }}" hx-target="#lunchBlock" hx-swap="outerHTML">Изменить</button>
+                            <button class="action-button" hx-post="/cancel-order?order_id={{ order.id }}" hx-target="#lunchBlock" hx-swap="outerHTML">Отменить</button>
                         {% endif %}
                 </td>
                 </tr>

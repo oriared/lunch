@@ -1,10 +1,14 @@
-<div class="lunch-container">
+<div id="lunchBlock" class="lunch-container">
     <h2>Мои обеды</h2>
     <div class="lunch-block-menu-items">
-        <button type="button" class="lunch-block-item-btn" hx-get="/my-orders" hx-target="#orderBlock" hx-swap="innerHTML">Мои заказы</button>
-        <button type="button" class="lunch-block-item-btn" hx-get="/order-form" hx-target="#orderBlock" hx-swap="innerHTML">Заказать</button>
+        <button type="button" class="lunch-block-item-btn{% if selected_module != 'order-form' %}-selected{% endif %}" hx-get="/my-orders" hx-target="#lunchBlock" hx-swap="outerHTML">Мои заказы</button>
+        <button type="button" class="lunch-block-item-btn{% if selected_module == 'order-form' %}-selected{% endif %}" hx-get="/order-form" hx-target="#lunchBlock" hx-swap="outerHTML">Заказать</button>
     </div>
     <div id="orderBlock">
-        {% include 'my-orders.html' %}
+        {% if selected_module == 'order-form' %}
+            {% include 'order-form.html' %}
+        {% else %}
+            {% include 'my-orders.html' %}
+        {% endif %}
     </div>
 </div>

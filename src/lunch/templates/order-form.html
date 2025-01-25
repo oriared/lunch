@@ -1,10 +1,9 @@
 <div class="order-container" id="orderBlock">
-    <button class="cancel-button" hx-get="/empty" hx-target="#orderBlock" hx-swap="innerHTML">Отменить</button>
     <div id="orderForm">
-        <form hx-post="/save-order{% if order %}?order_id={{ order.id }}{% endif %}" hx-target="#orderBlock" hx-swap="innerHTML">
+        <form hx-post="/save-order{% if order %}?order_id={{ order.id }}{% endif %}" hx-target="#lunchBlock" hx-swap="outerHTML">
             <h1>
                 Заказ обеда на
-                <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form" hx-target="#orderBlock" hx-swap="innerHTML">
+                <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form" hx-target="#lunchBlock" hx-swap="outerHTML">
                     {% for date in date_choices %}
                     <option value="{{ date.isoformat() }}" {% if selected_date == date %} selected {% endif %}>{{ date.strftime('%d.%m') }}</option>
                     {% endfor %}

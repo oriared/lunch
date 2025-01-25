@@ -12,7 +12,7 @@ from litestar.middleware.session.server_side import ServerSideSessionBackend, Se
 from litestar.security.session_auth import SessionAuth
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
-from views import base, htmx_blocks
+from views import admin_htmx_blocks, base, orders_htmx_blocks
 
 locale.setlocale(locale.LC_ALL, ('ru_RU', 'UTF-8'))
 
@@ -24,13 +24,14 @@ route_handlers = [
     base.logout,
     base.index,
     base.empty,
-    htmx_blocks.users,
-    htmx_blocks.my_orders,
-    htmx_blocks.order_form,
-    htmx_blocks.first_dishes,
-    htmx_blocks.second_dishes,
-    htmx_blocks.save_order,
-    htmx_blocks.cancel_order,
+    admin_htmx_blocks.users,
+    admin_htmx_blocks.save_user,
+    orders_htmx_blocks.my_orders,
+    orders_htmx_blocks.order_form,
+    orders_htmx_blocks.first_dishes,
+    orders_htmx_blocks.second_dishes,
+    orders_htmx_blocks.save_order,
+    orders_htmx_blocks.cancel_order,
     static_files_handler,
 ]
 

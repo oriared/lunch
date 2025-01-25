@@ -10,16 +10,14 @@ from litestar.contrib.htmx.response import HTMXTemplate
 from litestar.response import Redirect
 
 
-@get(path='/users')
-async def users() -> HTMXTemplate:
-    context = {'users': queries.get_users()}
-    return HTMXTemplate(template_name='users.html', context=context, push_url=False)
-
-
 @get(path='/my-orders')
 async def my_orders(request: HTMXRequest) -> HTMXTemplate:
-    context = {'orders': queries.get_user_orders(user=request.user), 'today': datetime.date.today()}
-    return HTMXTemplate(template_name='my-orders.html', context=context, push_url=False)
+    context = {
+        'orders': queries.get_user_orders(user=request.user),
+        'today': datetime.date.today(),
+        'selected_module': 'my-orders',
+    }
+    return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)
 
 
 @get(path='/order-form')
@@ -46,6 +44,7 @@ async def order_form(
             order = user_orders[0]
 
     context = {
+        'selected_module': 'order-form',
         'date_choices': date_choices,
         'dishes': queries.get_first_dishes(),
         'second_dishes': queries.get_standard_second_dishes(),
@@ -77,7 +76,7 @@ async def order_form(
             }
         )
 
-    return HTMXTemplate(template_name='order-form.html', context=context, push_url=False)
+    return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)
 
 
 @get(path='/first-dishes')
@@ -120,9 +119,10 @@ async def save_order(request: HTMXRequest, order_id: int | None = None) -> HTMXT
         'orders': queries.get_user_orders(user=request.user),
         'updated_order': order,
         'today': datetime.date.today(),
+        'selected_module': 'my-orders',
     }
 
-    return HTMXTemplate(template_name='my-orders.html', context=context, push_url=False)
+    return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)
 
 
 @post(path='/cancel-order')
