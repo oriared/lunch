@@ -25,6 +25,7 @@ route_handlers = [
     base.index,
     base.empty,
     admin_htmx_blocks.users,
+    admin_htmx_blocks.user_form,
     admin_htmx_blocks.save_user,
     orders_htmx_blocks.my_orders,
     orders_htmx_blocks.order_form,

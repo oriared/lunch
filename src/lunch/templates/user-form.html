@@ -1,0 +1,30 @@
+<div>
+    <form hx-post="/save-user{% if user %}?user_id={{ user.id }}{% endif %}" hx-target="#adminInline" hx-swap="innerHTML">
+        <h2 style="text-align: start">
+            {% if not user %} Создание пользователя {% else %} {{ user.name }} {% endif %}
+        </h2>
+        <div class="input-container">
+            <label>ФИО</label>
+            {% if errors and 'name' in errors %}
+                <div class="error-message">{{ errors['name'] }}</div>
+            {% endif %}
+            <input name="name" value="{% if user %}{{ user.name }}{% endif %}">
+
+            <label>Логин</label>
+            <input name="username" value="{% if user %}{{ user.username }}{% endif %}">
+            {% if errors and 'username' in errors %}
+                <div class="error-message">{{ errors['username'] }}</div>
+            {% endif %}
+            <label>Пароль</label>
+            <input type="password" name="password" value="{% if user %}{{ user.password }}{% endif %}">
+            {% if errors and 'password' in errors %}
+                <div class="error-message">{{ errors['password'] }}</div>
+            {% endif %}
+        </div>
+        <div>
+            <label>Админ</label>
+            <input type="checkbox" name="is_admin" class="admin-checkbox" {% if user and user.is_admin %} checked {% endif %}>
+        </div>
+        <button type="submit">Сохранить</button>
+    </form>
+</div>

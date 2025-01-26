@@ -287,7 +287,7 @@ h2 {
     justify-content: space-between;
 }
 
-.comment-to-order input {
+.input-container input {
     width: 100%;
     padding: 10px;
     margin: 10px 0px 20px;
@@ -544,4 +544,13 @@ table .action-button:hover {
 
 .highlight-row {
     background-color: #e3fbe3;
+}
+
+.admin-checkbox {
+    margin: 10px;
+}
+
+.error-message {
+    color: #ff6b6b;
+    font-weight: bold;
 }

@@ -32,6 +32,29 @@ def get_users() -> list[models.User]:
     return db.users
 
 
+def create_user(user_data: dict) -> models.User:
+    user_id = max([user.id for user in db.users], default=0) + 1
+    user = models.User(
+        id=user_id,
+        username=user_data['username'],
+        password=user_data['password'],
+        name=user_data['name'],
+        is_admin=user_data['is_admin'],
+        joined_dt=datetime.datetime.now(),
+    )
+    db.users.append(user)
+    return user
+
+
+def update_user(user: models.User, user_data: dict) -> models.User:
+    user.username = user_data['username']
+    user.password = user_data['password']
+    user.name = user_data['name']
+    user.is_admin = user_data['is_admin']
+
+    return user
+
+
 def get_user_orders(user: dto.User) -> list[models.Order]:
     return [order for order in db.orders if order.user_id == user.id]
 

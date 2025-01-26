@@ -18,7 +18,7 @@
                     <td>{{ "Да" if user.is_admin else "Нет" }}</td>
                     <td>
                     <div class="action-buttons">
-                        <button class="action-button">Редактировать</button>
+                        <button class="action-button" hx-get="/user-form?user_id={{ user.id }}" hx-target="#adminInline" hx-swap="innerHTML">Редактировать</button>
                         <button class="action-button">{% if user.is_active %}Заблокировать{% else %} Разблокировать {% endif %}</button>
                     </div>
                 </td>
@@ -26,5 +26,5 @@
             {% endfor %}
         </tbody>
     </table>
-    <button class="btn-create">Добавить</button>
+    <button class="btn-create" hx-get="/user-form" hx-target="#adminInline" hx-swap="innerHTML">Добавить</button>
 </div>

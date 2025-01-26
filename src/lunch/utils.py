@@ -52,3 +52,24 @@ def get_dish_mode(dish: models.Dish) -> str:
         return consts.DishMode.CONSTRUCTOR
 
     return consts.DishMode.STANDARD
+
+
+def validate_user_data(data: dict[str, Any], user: models.User | None = None) -> tuple[bool, dict[str, str]]:
+    errors = {}
+    required_fields = ['username', 'password', 'name']
+    for field in required_fields:
+        if not data.get(field):
+            errors[field] = 'Обязательное поле'
+
+    if data.get('username'):
+        user_with_same_username = queries.get_user_by_username(username=data['username'])
+        if user_with_same_username and user_with_same_username != user:
+            errors['username'] = 'Такой пользователь уже существует'
+
+    if data.get('password') and len(data['password']) < 4:
+        errors['password'] = 'Минимальная длина пароля 4 символа'  # noqa: S105
+
+    if data.get('name') and len(data['name']) < 3:
+        errors['name'] = 'Минимальная длина имени 3 символа'
+
+    return bool(not errors), errors
