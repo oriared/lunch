@@ -28,8 +28,10 @@ def get_user_by_id(user_id: int) -> dto.User | None:
     return user
 
 
-def get_users() -> list[models.User]:
-    return db.users
+def get_users(page: int | None = None) -> list[models.User]:
+    if not page:
+        return db.users
+    return db.users[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
 
 
 def create_user(user_data: dict) -> models.User:
@@ -55,8 +57,11 @@ def update_user(user: models.User, user_data: dict) -> models.User:
     return user
 
 
-def get_user_orders(user: dto.User) -> list[models.Order]:
-    return [order for order in db.orders if order.user_id == user.id]
+def get_user_orders(user: dto.User, page: int | None = None) -> list[models.Order]:
+    all_user_orders = [order for order in db.orders if order.user_id == user.id]
+    if not page:
+        return all_user_orders
+    return all_user_orders[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
 
 
 def get_orders_by_date(date: datetime.date, orders: list[models.Order] | None = None) -> list[models.Order]:

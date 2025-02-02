@@ -1,6 +1,8 @@
 import datetime
+from math import ceil
 from typing import Any
 
+import consts
 import utils
 from database import queries
 from litestar import Request, get, post
@@ -15,7 +17,14 @@ async def empty() -> str:
 
 @get(path='/')
 async def index(request: Request) -> Template:
-    context = {'orders': queries.get_user_orders(user=request.user), 'today': datetime.date.today()}
+    orders = queries.get_user_orders(user=request.user)
+    page_orders = queries.get_user_orders(user=request.user, page=1)
+    context = {
+        'orders': page_orders,
+        'today': datetime.date.today(),
+        'page': 1,
+        'pages_count': ceil(len(orders) // consts.ITEMS_PER_PAGE) or 1,
+    }
     return Template(template_name='index.html', context=context)
 
 

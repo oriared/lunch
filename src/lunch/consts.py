@@ -1,3 +1,6 @@
 class DishMode:
     STANDARD = 'STANDARD'
     CONSTRUCTOR = 'CONSTRUCTOR'
+
+
+ITEMS_PER_PAGE = 10

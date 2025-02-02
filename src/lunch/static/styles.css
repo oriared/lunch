@@ -554,3 +554,31 @@ table .action-button:hover {
     color: #ff6b6b;
     font-weight: bold;
 }
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.page-button {
+    padding: 3px;
+    margin: 5px;
+    height: 30px;
+    max-width: 100px;
+    color: #4a90e2;
+    background-color: #fff;
+    border: 1px solid #4a90e2;
+    border-radius: 5px;
+}
+
+.next-page-button {
+    padding: 3px;
+    margin: 5px;
+    max-width: 50px;
+    height: 30px;
+    color: #4a90e2;
+    background-color: #fff;
+    border: 1px solid #4a90e2;
+    border-radius: 5px;
+}

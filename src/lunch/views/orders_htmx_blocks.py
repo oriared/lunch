@@ -1,4 +1,5 @@
 import datetime
+from math import ceil
 
 import consts
 import dto
@@ -11,11 +12,15 @@ from litestar.response import Redirect
 
 
 @get(path='/my-orders')
-async def my_orders(request: HTMXRequest) -> HTMXTemplate:
+async def my_orders(request: HTMXRequest, page: int = 1) -> HTMXTemplate:
+    orders = queries.get_user_orders(user=request.user)
+    page_orders = queries.get_user_orders(user=request.user, page=page)
     context = {
-        'orders': queries.get_user_orders(user=request.user),
+        'orders': page_orders,
         'today': datetime.date.today(),
         'selected_module': 'my-orders',
+        'page': page,
+        'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
     }
     return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)
 
@@ -115,11 +120,16 @@ async def save_order(request: HTMXRequest, order_id: int | None = None) -> HTMXT
     else:
         order = queries.create_order(lunch=lunch, user=request.user)
 
+    orders = queries.get_user_orders(user=request.user)
+    page_orders = queries.get_user_orders(user=request.user, page=1)
+
     context = {
-        'orders': queries.get_user_orders(user=request.user),
+        'orders': page_orders,
         'updated_order': order,
         'today': datetime.date.today(),
         'selected_module': 'my-orders',
+        'page': 1,
+        'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
     }
 
     return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)

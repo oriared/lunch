@@ -28,3 +28,18 @@
     </table>
     <button class="btn-create" hx-get="/user-form" hx-target="#adminInline" hx-swap="innerHTML">Добавить</button>
 </div>
+{% if page == 1 %}
+    {% set previous_page = None %}
+{% else %}
+    {% set previous_page = page - 1 %}
+{% endif %}
+{% if page == pages_count %}
+    {% set next_page = None %}
+{% else %}
+    {% set next_page = page + 1 %}
+{% endif %}
+<div class="pagination-container">
+    <button {% if previous_page is none %} disabled {% endif %} class="next-page-button" hx-get="/users?page={{ page - 1 }}" hx-target="#adminBlock" hx-swap="outerHTML"><<<</button>
+    <button class="page-button">{{ page }}/{{ pages_count }}</button>
+    <button {% if next_page is none %} disabled {% endif %} class="next-page-button" hx-get="/users?page={{ page + 1 }}" hx-target="#adminBlock" hx-swap="outerHTML">>>></button>
+</div>

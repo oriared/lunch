@@ -1,3 +1,6 @@
+from math import ceil
+
+import consts
 from database import queries
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
@@ -6,8 +9,15 @@ from utils import validate_user_data
 
 
 @get(path='/users')
-async def users() -> HTMXTemplate:
-    context = {'users': queries.get_users(), 'selected_module': 'users'}
+async def users_list(page: int = 1) -> HTMXTemplate:
+    users = queries.get_users()
+    page_users = queries.get_users(page=page)
+    context = {
+        'users': page_users,
+        'selected_module': 'users',
+        'page': page,
+        'pages_count': ceil(len(users) / consts.ITEMS_PER_PAGE) or 1,
+    }
     return HTMXTemplate(template_name='admin-panel.html', context=context, push_url=False)
 
 
@@ -33,7 +43,12 @@ async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTem
     else:
         queries.create_user(user_data=user_data)
 
-    context = {'users': queries.get_users()}
+    users = queries.get_users()
+    context = {
+        'users': queries.get_users(),
+        'page': 1,
+        'pages_count': ceil(len(users) / consts.ITEMS_PER_PAGE) or 1,
+    }
     return HTMXTemplate(template_name='users.html', context=context, push_url=False)
 
 
