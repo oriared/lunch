@@ -128,6 +128,12 @@ def get_vegan_dishes() -> list[models.Dish]:
     return [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
 
 
+def get_orders(page: int | None = None) -> list[models.Order]:
+    if page is None:
+        return db.orders
+    return db.orders[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
+
+
 def get_order(order_id: int) -> models.Order:
     try:
         return next(order for order in db.orders if order.id == order_id)
@@ -135,11 +141,13 @@ def get_order(order_id: int) -> models.Order:
         raise ObjectDoesNotExistsError from e
 
 
-def create_order(lunch: dto.Lunch, user: dto.User) -> models.Order:
+def create_order(lunch: dto.Lunch, user: dto.User | None) -> models.Order:
     order_id = max([order.id for order in db.orders], default=0) + 1
     dishes_text = get_lunch_dishes_text(lunch=lunch)
 
-    order = models.Order(id=order_id, user_id=user.id, date=lunch.date, dishes_text=dishes_text, comment=lunch.comment)
+    user_id = user.id if user else None
+
+    order = models.Order(id=order_id, user_id=user_id, date=lunch.date, dishes_text=dishes_text, comment=lunch.comment)
     db.orders.append(order)
 
     save_order_dishes(order=order, lunch=lunch)

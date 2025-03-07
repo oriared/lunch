@@ -30,6 +30,8 @@ async def order_form(
     request: HTMXRequest,
     order_id: int | None = None,
     order_date: datetime.date | None = None,
+    is_admin: bool = False,
+    anonymous: bool = False,
 ) -> HTMXTemplate:
     date_choices = utils.get_order_date_choices()
     order = queries.get_order(order_id=order_id) if order_id else None
@@ -43,7 +45,7 @@ async def order_form(
     else:
         selected_date = None
 
-    if selected_date and not order:
+    if selected_date and not order and not anonymous:
         user_orders = queries.get_orders_by_date(date=selected_date, orders=queries.get_user_orders(user=request.user))
         if user_orders:
             order = user_orders[0]
@@ -57,6 +59,8 @@ async def order_form(
         'second_dishes_second_part': queries.get_constructor_second_dishes(part='second'),
         'selected_date': selected_date,
         'selected_dish_mode': consts.DishMode.STANDARD,
+        'is_admin': is_admin,
+        'anonymous': anonymous,
     }
 
     if order:
@@ -102,7 +106,9 @@ async def second_dishes(dish_mode: str) -> HTMXTemplate:
 
 
 @post(path='/save-order')
-async def save_order(request: HTMXRequest, order_id: int | None = None) -> HTMXTemplate:
+async def save_order(
+    request: HTMXRequest, order_id: int | None = None, is_admin: bool = False, anonymous: bool = False, page: int = 1
+) -> HTMXTemplate:
     form = await request.form()
 
     order_date = datetime.date.fromisoformat(form['order_date'])
@@ -118,21 +124,28 @@ async def save_order(request: HTMXRequest, order_id: int | None = None) -> HTMXT
         order = queries.get_order(order_id=order_id)
         queries.update_order(order=order, lunch=lunch)
     else:
-        order = queries.create_order(lunch=lunch, user=request.user)
+        user = request.user if not anonymous else None
+        order = queries.create_order(lunch=lunch, user=user)
 
-    orders = queries.get_user_orders(user=request.user)
-    page_orders = queries.get_user_orders(user=request.user, page=1)
+    if is_admin:
+        orders = queries.get_orders()
+        page_orders = queries.get_orders(page=1)
+    else:
+        orders = queries.get_user_orders(user=request.user)
+        page_orders = queries.get_user_orders(user=request.user, page=1)
 
     context = {
         'orders': page_orders,
         'updated_order': order,
         'today': datetime.date.today(),
         'selected_module': 'my-orders',
-        'page': 1,
+        'page': page,
         'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
     }
 
-    return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)
+    template_name = 'orders.html' if is_admin else 'lunch-block.html'
+
+    return HTMXTemplate(template_name=template_name, context=context, push_url=False)
 
 
 @post(path='/cancel-order')

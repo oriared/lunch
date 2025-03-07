@@ -1,13 +1,15 @@
 <div id="adminBlock" class="admin-container">
  <h2>Администрирование</h2>
     <div class="admin-menu-items">
-        <button type="button" class="lunch-block-item-btn{% if selected_module == 'users' %}-selected{% endif %}" hx-get="/users" hx-target="#adminBlock" hx-swap="outerHTML">Пользователи</button>
-        <button type="button" class="lunch-block-item-btn{% if selected_module == 'orders' %}-selected{% endif %}" hx-get="/empty" hx-target="#adminInline" hx-swap="innerHTML">Заказы</button>
+        <button type="button" class="lunch-block-item-btn{% if selected_module == 'users' %}-selected{% endif %}" hx-get="/admin/users" hx-target="#adminBlock" hx-swap="outerHTML">Пользователи</button>
+        <button type="button" class="lunch-block-item-btn{% if selected_module == 'orders' %}-selected{% endif %}" hx-get="/admin/orders" hx-target="#adminBlock" hx-swap="outerHTML">Заказы</button>
         <button type="button" class="lunch-block-item-btn{% if selected_module == 'menu' %}-selected{% endif %}" hx-get="/empty" hx-target="#adminInline" hx-swap="innerHTML">Меню</button>
     </div>
     <div id="adminInline">
         {% if selected_module == 'users' %}
             {% include 'users.html' %}
+        {% elif selected_module == 'orders' %}
+            {% include 'orders.html' %}
         {% endif %}
     </div>
 </div>

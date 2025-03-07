@@ -1,6 +1,16 @@
+{% if not is_admin %}
+    {% set is_admin = false %}
+{% endif %}
+{% if not anonymous %}
+    {% set anonymous = false %}
+{% endif %}
+{% if not page %}
+    {% set page = 1 %}
+{% endif %}
+
 <div class="order-container" id="orderBlock">
     <div id="orderForm">
-        <form hx-post="/save-order{% if order %}?order_id={{ order.id }}{% endif %}" hx-target="#lunchBlock" hx-swap="outerHTML">
+        <form hx-post="/save-order?page={{ page }}{% if order %}&order_id={{ order.id }}{% endif %}&is_admin={{ is_admin }}&anonymous={{ anonymous }}" hx-target="{% if is_admin %}#adminInline{% else %}#lunchBlock{% endif %}" hx-swap="{% if is_admin %}innerHTML{% else %}outerHTML{% endif %}">
             <h1>
                 Заказ обеда на
                 <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form" hx-target="#lunchBlock" hx-swap="outerHTML">
@@ -9,6 +19,9 @@
                     {% endfor %}
                 </select>
             </h1>
+            {% if order and order.user_id != request.user.id %}
+                <h2> {{ order.user_id }} </h2>
+            {% endif %}
             <label for="firstDish">Выберите первое блюдо:</label>
             <div class="select-dish">
                 <select id="firstDish" name="first_dish">

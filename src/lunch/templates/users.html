@@ -18,7 +18,7 @@
                     <td>{{ "Да" if user.is_admin else "Нет" }}</td>
                     <td>
                     <div class="action-buttons">
-                        <button class="action-button" hx-get="/user-form?user_id={{ user.id }}" hx-target="#adminInline" hx-swap="innerHTML">Редактировать</button>
+                        <button class="action-button" hx-get="/admin/user-form?user_id={{ user.id }}" hx-target="#adminInline" hx-swap="innerHTML">Редактировать</button>
                         <button class="action-button">{% if user.is_active %}Заблокировать{% else %} Разблокировать {% endif %}</button>
                     </div>
                 </td>
@@ -26,7 +26,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <button class="btn-create" hx-get="/user-form" hx-target="#adminInline" hx-swap="innerHTML">Добавить</button>
+    <button class="btn-create" hx-get="/admin/user-form" hx-target="#adminInline" hx-swap="innerHTML">Добавить</button>
 </div>
 {% if page == 1 %}
     {% set previous_page = None %}
@@ -39,7 +39,7 @@
     {% set next_page = page + 1 %}
 {% endif %}
 <div class="pagination-container">
-    <button {% if previous_page is none %} disabled {% endif %} class="next-page-button" hx-get="/users?page={{ page - 1 }}" hx-target="#adminBlock" hx-swap="outerHTML"><<<</button>
+    <button {% if previous_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/users?page={{ page - 1 }}" hx-target="#adminBlock" hx-swap="outerHTML"><<<</button>
     <button class="page-button">{{ page }}/{{ pages_count }}</button>
-    <button {% if next_page is none %} disabled {% endif %} class="next-page-button" hx-get="/users?page={{ page + 1 }}" hx-target="#adminBlock" hx-swap="outerHTML">>>></button>
+    <button {% if next_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/users?page={{ page + 1 }}" hx-target="#adminBlock" hx-swap="outerHTML">>>></button>
 </div>

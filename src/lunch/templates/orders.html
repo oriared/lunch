@@ -1,0 +1,45 @@
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>ФИО</th>
+                <th>Блюда</th>
+                <th>Комментарий</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr {% if order == updated_order %} class="highlight-row" {% endif %}>
+                    <td>{{ order.date.strftime('%d.%m.%Y') }}</td>
+                    <td>{{ order.user_id }}</td>
+                    <td>{{ order.dishes_text }}</td>
+                    <td>{{ order.comment }}</td>
+                    <td>
+                        {% if order.date > today %}
+                            <button class="action-button" hx-get="/order-form?order_id={{ order.id }}&is_admin=true" hx-target="#lunchBlock" hx-swap="outerHTML">Изменить</button>
+                            <button class="action-button" hx-post="/admin/cancel-order?order_id={{ order.id }}" hx-target="#adminBlock" hx-swap="outerHTML">Отменить</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button class="btn-create" hx-get="/order-form?is_admin=true&anonymous=true" hx-target="#lunchBlock" hx-swap="outerHTML">Добавить</button>
+</div>
+{% if page == 1 %}
+    {% set previous_page = None %}
+{% else %}
+    {% set previous_page = page - 1 %}
+{% endif %}
+{% if page == pages_count %}
+    {% set next_page = None %}
+{% else %}
+    {% set next_page = page + 1 %}
+{% endif %}
+<div class="pagination-container">
+    <button {% if previous_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/orders?page={{ page - 1 }}" hx-target="#adminBlock" hx-swap="outerHTML"><<<</button>
+    <button class="page-button">{{ page }}/{{ pages_count }}</button>
+    <button {% if next_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/users?page={{ page + 1 }}" hx-target="#adminBlock" hx-swap="outerHTML">>>></button>
+</div>

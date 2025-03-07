@@ -16,9 +16,9 @@ class User:
 @dataclass
 class Order:
     id: int
-    user_id: int
     date: datetime.date
     dishes_text: str
+    user_id: int | None = None
     comment: str | None = None
 
 
