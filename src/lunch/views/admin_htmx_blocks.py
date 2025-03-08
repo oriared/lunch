@@ -6,8 +6,8 @@ from database import queries
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
-from litestar.response import Redirect
-from utils import validate_user_data
+from litestar.response import Redirect, Response
+from utils import get_orders_report_bytes, validate_user_data
 
 
 @get(path='/admin/users')
@@ -81,3 +81,13 @@ async def cancel_order(order_id: int) -> Redirect:
     queries.delete_order(order=order)
 
     return Redirect('/admin/orders')
+
+
+@get(path='/admin/download-orders-report')
+async def download_orders_report() -> Response:
+    report_bytes = get_orders_report_bytes(datetime.date.today() + datetime.timedelta(days=1))
+    return Response(
+        media_type='text/csv',
+        content=report_bytes,
+        headers={'Content-Disposition': 'attachment; filename="order.csv"'},
+    )

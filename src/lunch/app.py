@@ -29,6 +29,7 @@ route_handlers = [
     admin_htmx_blocks.save_user,
     admin_htmx_blocks.orders_list,
     admin_htmx_blocks.cancel_order,
+    admin_htmx_blocks.download_orders_report,
     orders_htmx_blocks.my_orders,
     orders_htmx_blocks.order_form,
     orders_htmx_blocks.first_dishes,

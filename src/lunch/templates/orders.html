@@ -27,6 +27,7 @@
         </tbody>
     </table>
     <button class="btn-create" hx-get="/order-form?is_admin=true&anonymous=true" hx-target="#lunchBlock" hx-swap="outerHTML">Добавить</button>
+    <a href="admin/download-orders-report"><button class="btn-create">Скачать</button></a>
 </div>
 {% if page == 1 %}
     {% set previous_page = None %}
@@ -41,5 +42,5 @@
 <div class="pagination-container">
     <button {% if previous_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/orders?page={{ page - 1 }}" hx-target="#adminBlock" hx-swap="outerHTML"><<<</button>
     <button class="page-button">{{ page }}/{{ pages_count }}</button>
-    <button {% if next_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/users?page={{ page + 1 }}" hx-target="#adminBlock" hx-swap="outerHTML">>>></button>
+    <button {% if next_page is none %} disabled {% endif %} class="next-page-button" hx-get="/admin/orders?page={{ page + 1 }}" hx-target="#adminBlock" hx-swap="outerHTML">>>></button>
 </div>

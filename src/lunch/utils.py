@@ -1,4 +1,6 @@
+import csv
 import datetime
+import io
 from typing import TYPE_CHECKING, Any
 
 import consts
@@ -73,3 +75,31 @@ def validate_user_data(data: dict[str, Any], user: models.User | None = None) ->
         errors['name'] = 'Минимальная длина имени 3 символа'
 
     return bool(not errors), errors
+
+
+def get_orders_report_bytes(date: datetime.date) -> bytes:
+    orders = queries.get_orders_by_date(date=date)
+
+    headers = ['ФИО', 'Заказ', 'Комментарий']
+    rows = [[order.user_id or '-', order.dishes_text, order.comment or ''] for order in orders]
+
+    return generate_csv_bytes(rows=rows, headers=headers)
+
+
+def generate_csv_bytes(rows: list[list[str | int | float]], headers: list[str] | None = None) -> bytes:
+    """
+    Генерирует CSV-файл и возвращает его содержимое в виде байтов.
+
+    :param rows: Список списков с данными (строки CSV).
+    :param headers: Список заголовков (опционально).
+    :return: CSV-файл в виде байтов.
+    """
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    if headers:
+        writer.writerow(headers)
+
+    writer.writerows(rows)
+
+    return output.getvalue().encode('utf-8')
