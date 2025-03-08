@@ -28,7 +28,7 @@
                     {% include 'first-dishes.html' %}
                 </select>
                 <label class="dish-option">
-                    <input type="checkbox" id="vegan" name="vegan" value=true hx-get="/first-dishes" hx-target="#firstDish" hx-swap="innerHTML">
+                    <input type="checkbox" id="vegan" name="vegan" value=true hx-get="/first-dishes?date={{ selected_date }}" hx-target="#firstDish" hx-swap="innerHTML">
                     <span class="button-label">Веганское</span>
                 </label>
             </div>
@@ -38,9 +38,9 @@
                     {% include 'second-dishes.html' %}
                 </div>
                 <div class="radio-toggle">
-                    <input type="radio" id="standard" name="dish_mode" value="STANDARD" {% if selected_dish_mode == "STANDARD" %} checked {% endif %} hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
+                    <input type="radio" id="standard" name="dish_mode" value="STANDARD" {% if selected_dish_mode == "STANDARD" %} checked {% endif %} hx-get="/second-dishes?date={{ selected_date }}" hx-target="#secondDishesSelects" hx-swap="innerHTML">
                     <label for="standard" class="radio-button">Стандарт</label>
-                    <input type="radio" id="constructor" name="dish_mode" value="CONSTRUCTOR" {% if selected_dish_mode == "CONSTRUCTOR" %} checked {% endif %} hx-get="/second-dishes" hx-target="#secondDishesSelects" hx-swap="innerHTML">
+                    <input type="radio" id="constructor" name="dish_mode" value="CONSTRUCTOR" {% if selected_dish_mode == "CONSTRUCTOR" %} checked {% endif %} hx-get="/second-dishes?date={{ selected_date }}" hx-target="#secondDishesSelects" hx-swap="innerHTML">
                     <label for="constructor" class="radio-button">Конструктор</label>
                 </div>
             </div>

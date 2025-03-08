@@ -26,6 +26,7 @@ class Order:
 class Dish:
     id: int
     name: str
+    weekday: int | None = None
 
 
 @dataclass

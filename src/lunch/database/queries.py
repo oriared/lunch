@@ -108,24 +108,43 @@ def get_order_second_dish_second_part(order: models.Order) -> models.Dish | None
     return None
 
 
-def get_first_dishes() -> list[models.Dish]:
-    return db.first_dishes
+def get_first_dishes(date: datetime.date | None = None) -> list[models.Dish]:
+    if not date:
+        return db.first_dishes
+    today_weekday = date.isoweekday()
+    return [d for d in db.first_dishes if not d.weekday or d.weekday == today_weekday]
 
 
-def get_standard_second_dishes() -> list[models.Dish]:
-    return [d for d in db.second_dishes if models.DishCategory(d.id, 3) in db.dish_categories]
+def get_standard_second_dishes(date: datetime.date | None = None) -> list[models.Dish]:
+    second_dishes = [d for d in db.second_dishes if models.DishCategory(d.id, 3) in db.dish_categories]
+    if not date:
+        return second_dishes
+    today_weekday = date.isoweekday()
+    return [d for d in second_dishes if not d.weekday or d.weekday == today_weekday]
 
 
-def get_constructor_second_dishes(part: str | None = None) -> list[models.Dish]:
+def get_constructor_second_dishes(part: str | None = None, date: datetime.date | None = None) -> list[models.Dish]:
+    assert part in ('first', 'second', None)  # noqa S101
     if part == 'first':
-        return [d for d in db.second_dishes if models.DishCategory(d.id, 4) in db.dish_categories]
-    if part == 'second':
-        return [d for d in db.second_dishes if models.DishCategory(d.id, 5) in db.dish_categories]
-    return get_constructor_second_dishes(part='first') + get_constructor_second_dishes(part='second')
+        second_dishes = [d for d in db.second_dishes if models.DishCategory(d.id, 4) in db.dish_categories]
+    elif part == 'second':
+        second_dishes = [d for d in db.second_dishes if models.DishCategory(d.id, 5) in db.dish_categories]
+    else:
+        second_dishes = get_constructor_second_dishes(part='first', date=date) + get_constructor_second_dishes(
+            part='second', date=date
+        )
+    if not date:
+        return second_dishes
+    today_weekday = date.isoweekday()
+    return [d for d in second_dishes if not d.weekday or d.weekday == today_weekday]
 
 
-def get_vegan_dishes() -> list[models.Dish]:
-    return [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
+def get_vegan_dishes(date: datetime.date | None = None) -> list[models.Dish]:
+    all_vegan_dishes = [d for d in db.first_dishes if models.DishCategory(d.id, 1) in db.dish_categories]
+    if not date:
+        return all_vegan_dishes
+    today_weekday = date.isoweekday()
+    return [d for d in all_vegan_dishes if not d.weekday or d.weekday == today_weekday]
 
 
 def get_orders(page: int | None = None) -> list[models.Order]:

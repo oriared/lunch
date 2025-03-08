@@ -11,17 +11,17 @@ users = [
 
 first_dishes = [
     models.Dish(1, 'Котлета'),
-    models.Dish(2, 'Рыба'),
+    models.Dish(2, 'Рыба', 4),
     models.Dish(3, 'Стейк'),
     models.Dish(4, 'Курица'),
     models.Dish(5, 'Салат'),
-    models.Dish(6, 'Суп грибной'),
+    models.Dish(6, 'Суп грибной', 2),
 ]
 
 second_dishes = [
     models.Dish(7, 'Удон с креветками'),
     models.Dish(8, 'Соба с говядиной'),
-    models.Dish(9, 'Пельмени жареные'),
+    models.Dish(9, 'Пельмени жареные', 5),
     models.Dish(10, 'Курица по-французски'),
     models.Dish(11, 'Кебаб куриный'),
     models.Dish(12, 'Пюре картофельное'),

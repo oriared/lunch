@@ -8,6 +8,7 @@ from database import queries
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
+from litestar.exceptions import NotFoundException
 from litestar.response import Redirect
 
 
@@ -45,7 +46,10 @@ async def order_form(
     else:
         selected_date = None
 
-    if selected_date and not order and not anonymous:
+    if not selected_date:
+        raise NotFoundException
+
+    if not order and not anonymous:
         user_orders = queries.get_orders_by_date(date=selected_date, orders=queries.get_user_orders(user=request.user))
         if user_orders:
             order = user_orders[0]
@@ -53,10 +57,10 @@ async def order_form(
     context = {
         'selected_module': 'order-form',
         'date_choices': date_choices,
-        'dishes': queries.get_first_dishes(),
-        'second_dishes': queries.get_standard_second_dishes(),
-        'second_dishes_first_part': queries.get_constructor_second_dishes(part='first'),
-        'second_dishes_second_part': queries.get_constructor_second_dishes(part='second'),
+        'dishes': queries.get_first_dishes(date=selected_date),
+        'second_dishes': queries.get_standard_second_dishes(date=selected_date),
+        'second_dishes_first_part': queries.get_constructor_second_dishes(part='first', date=selected_date),
+        'second_dishes_second_part': queries.get_constructor_second_dishes(part='second', date=selected_date),
         'selected_date': selected_date,
         'selected_dish_mode': consts.DishMode.STANDARD,
         'is_admin': is_admin,
@@ -89,19 +93,19 @@ async def order_form(
 
 
 @get(path='/first-dishes')
-async def first_dishes(vegan: bool | None = None) -> HTMXTemplate:
-    dishes = queries.get_vegan_dishes() if vegan else queries.get_first_dishes()
+async def first_dishes(date: datetime.date, vegan: bool | None = None) -> HTMXTemplate:
+    dishes = queries.get_vegan_dishes(date=date) if vegan else queries.get_first_dishes(date=date)
     return HTMXTemplate(template_name='first-dishes.html', context={'dishes': dishes}, push_url=False)
 
 
 @get(path='/second-dishes')
-async def second_dishes(dish_mode: str) -> HTMXTemplate:
+async def second_dishes(date: datetime.date, dish_mode: str) -> HTMXTemplate:
     context = {'selected_dish_mode': dish_mode}
     if dish_mode == consts.DishMode.STANDARD:
-        context['second_dishes'] = queries.get_standard_second_dishes()
+        context['second_dishes'] = queries.get_standard_second_dishes(date=date)
     elif dish_mode == consts.DishMode.CONSTRUCTOR:
-        context['second_dishes_first_part'] = queries.get_constructor_second_dishes(part='first')
-        context['second_dishes_second_part'] = queries.get_constructor_second_dishes(part='second')
+        context['second_dishes_first_part'] = queries.get_constructor_second_dishes(part='first', date=date)
+        context['second_dishes_second_part'] = queries.get_constructor_second_dishes(part='second', date=date)
     return HTMXTemplate(template_name='second-dishes.html', context=context, push_url=False)
 
 
