@@ -10,11 +10,6 @@ from litestar.exceptions import NotAuthorizedException
 from litestar.response import Redirect, Template
 
 
-@get(path='/empty')
-async def empty() -> str:
-    return ''
-
-
 @get(path='/')
 async def index(request: Request) -> Template:
     orders = queries.get_user_orders(user=request.user)

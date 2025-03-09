@@ -7,7 +7,9 @@ from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
 from litestar.response import Redirect, Response
-from utils import get_orders_report_bytes, validate_user_data
+from utils import validate_user_data
+
+from views.utils import get_orders_report_bytes
 
 
 @get(path='/admin/users')

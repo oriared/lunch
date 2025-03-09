@@ -23,7 +23,6 @@ route_handlers = [
     base.login,
     base.logout,
     base.index,
-    base.empty,
     admin_htmx_blocks.users_list,
     admin_htmx_blocks.user_form,
     admin_htmx_blocks.save_user,
