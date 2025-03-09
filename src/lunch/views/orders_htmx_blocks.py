@@ -4,7 +4,7 @@ from math import ceil
 import consts
 import dto
 import utils
-from database import queries
+from database import models, queries
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
@@ -37,17 +37,11 @@ async def order_form(
     date_choices = utils.get_order_date_choices()
     order = queries.get_order(order_id=order_id) if order_id else None
 
-    if order:
-        selected_date = order.date
-    elif order_date:
-        selected_date = order_date
-    elif date_choices:
-        selected_date = date_choices[0]
-    else:
-        selected_date = None
-
+    selected_date = get_selected_date(
+        user=request.user, order=order, order_date=order_date, date_choices=date_choices, anonymous=anonymous
+    )
     if not selected_date:
-        raise NotFoundException
+        raise NotFoundException('Нет доступных дат для заказа')
 
     if not order and not anonymous:
         user_orders = queries.get_orders_by_date(date=selected_date, orders=queries.get_user_orders(user=request.user))
@@ -166,3 +160,28 @@ async def cancel_order(order_id: int) -> Redirect:
     queries.delete_order(order=order)
 
     return Redirect('/my-orders')
+
+
+def get_selected_date(
+    user: dto.User,
+    order: models.Order | None,
+    order_date: datetime.date | None,
+    date_choices: list[datetime.date],
+    anonymous: bool,
+) -> datetime.date | None:
+    if order:
+        selected_date = order.date
+    elif order_date:
+        selected_date = order_date
+    elif date_choices and not anonymous:
+        for date in date_choices:
+            if not queries.get_user_order_by_date(user=user, date=date):
+                selected_date = date
+                break
+        else:
+            selected_date = date_choices[0]
+    elif date_choices:
+        selected_date = date_choices[0]
+    else:
+        selected_date = None
+    return selected_date

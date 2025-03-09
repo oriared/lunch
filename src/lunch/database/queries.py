@@ -29,9 +29,14 @@ def get_user_by_id(user_id: int) -> dto.User | None:
 
 
 def get_users(page: int | None = None) -> list[models.User]:
+    sorted_users = sort_users_by_dt_joined(db.users)
     if not page:
-        return db.users
-    return db.users[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
+        return sorted_users
+    return sorted_users[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
+
+
+def sort_users_by_dt_joined(users: list[models.User]) -> list[models.User]:
+    return sorted(users, key=lambda user: user.joined_dt, reverse=True)
 
 
 def create_user(user_data: dict) -> models.User:
@@ -59,9 +64,21 @@ def update_user(user: models.User, user_data: dict) -> models.User:
 
 def get_user_orders(user: dto.User, page: int | None = None) -> list[models.Order]:
     all_user_orders = [order for order in db.orders if order.user_id == user.id]
+    sorted_orders = sort_orders_by_date(all_user_orders)
     if not page:
-        return all_user_orders
-    return all_user_orders[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
+        return sorted_orders
+    return sorted_orders[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
+
+
+def sort_orders_by_date(orders: list[models.Order]) -> list[models.Order]:
+    return sorted(orders, key=lambda order: order.date, reverse=True)
+
+
+def get_user_order_by_date(user: dto.User, date: datetime.date) -> models.Order | None:
+    for order in db.orders:
+        if order.user_id == user.id and order.date == date:
+            return order
+    return None
 
 
 def get_orders_by_date(date: datetime.date, orders: list[models.Order] | None = None) -> list[models.Order]:
@@ -148,9 +165,11 @@ def get_vegan_dishes(date: datetime.date | None = None) -> list[models.Dish]:
 
 
 def get_orders(page: int | None = None) -> list[models.Order]:
+    all_orders = db.orders
+    sorted_orders = sort_orders_by_date(all_orders)
     if page is None:
-        return db.orders
-    return db.orders[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
+        return sorted_orders
+    return sorted_orders[consts.ITEMS_PER_PAGE * (page - 1) : consts.ITEMS_PER_PAGE * page]
 
 
 def get_order(order_id: int) -> models.Order:
