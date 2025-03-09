@@ -7,7 +7,7 @@ authors = [
 ]
 dependencies = [
     "litestar[standard]>=2.12.1",
-    "ruff>=0.7.1",
+    "ruff>=0.9.10",
 ]
 requires-python = "==3.12.*"
 readme = "README.md"
