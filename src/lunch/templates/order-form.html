@@ -13,13 +13,13 @@
         <form hx-post="/save-order?page={{ page }}{% if order %}&order_id={{ order.id }}{% endif %}&is_admin={{ is_admin }}&anonymous={{ anonymous }}" hx-target="{% if is_admin %}#adminInline{% else %}#lunchBlock{% endif %}" hx-swap="{% if is_admin %}innerHTML{% else %}outerHTML{% endif %}">
             <h1>
                 Заказ обеда на
-                <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form" hx-target="#lunchBlock" hx-swap="outerHTML">
+                <select id="orderDate" name="order_date" class="date-select" hx-get="/order-form{% if anonymous %}?anonymous=true{% endif %}" hx-target="#lunchBlock" hx-swap="outerHTML">
                     {% for date in date_choices %}
                     <option value="{{ date.isoformat() }}" {% if selected_date == date %} selected {% endif %}>{{ date.strftime('%d.%m') }}</option>
                     {% endfor %}
                 </select>
             </h1>
-            {% if order and order.user_id != request.user.id %}
+            {% if request.user.is_admin %}
                 <h2> {{ order.user_id }} </h2>
             {% endif %}
             <label for="firstDish">Выберите первое блюдо:</label>
