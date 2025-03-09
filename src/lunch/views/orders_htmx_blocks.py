@@ -115,21 +115,30 @@ async def save_order(
 ) -> HTMXTemplate:
     form = await request.form()
 
-    order_date = datetime.date.fromisoformat(form['order_date'])
-    lunch = dto.Lunch(
-        date=order_date,
-        dish_mode=form['dish_mode'],
-        first_dish=form['first_dish'],
-        second_dish_first_part=form['second_dish_first_part'],
-        second_dish_second_part=form.get('second_dish_second_part', ''),
-        comment=form.get('comment', ''),
-    )
-    if order_id:
-        order = queries.get_order(order_id=order_id)
-        queries.update_order(order=order, lunch=lunch)
-    else:
-        user = request.user if not anonymous else None
-        order = queries.create_order(lunch=lunch, user=user)
+    context = {
+        'today': datetime.date.today(),
+        'selected_module': 'my-orders',
+    }
+
+    if any([form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')]):
+        order_date = datetime.date.fromisoformat(form['order_date'])
+        lunch = dto.Lunch(
+            date=order_date,
+            dish_mode=form['dish_mode'],
+            first_dish=form['first_dish'],
+            second_dish_first_part=form['second_dish_first_part'],
+            second_dish_second_part=form.get('second_dish_second_part', ''),
+            comment=form.get('comment', ''),
+        )
+        if order_id:
+            order = queries.get_order(order_id=order_id)
+            queries.update_order(order=order, lunch=lunch)
+        else:
+            user = request.user if not anonymous else None
+            order = queries.create_order(lunch=lunch, user=user)
+        context['updated_order'] = order
+    elif order_id:
+        queries.delete_order(order=queries.get_order(order_id=order_id))
 
     if is_admin:
         orders = queries.get_orders()
@@ -138,14 +147,13 @@ async def save_order(
         orders = queries.get_user_orders(user=request.user)
         page_orders = queries.get_user_orders(user=request.user, page=1)
 
-    context = {
-        'orders': page_orders,
-        'updated_order': order,
-        'today': datetime.date.today(),
-        'selected_module': 'my-orders',
-        'page': page,
-        'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
-    }
+    context.update(
+        {
+            'orders': page_orders,
+            'page': page,
+            'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
+        }
+    )
 
     template_name = 'orders.html' if is_admin else 'lunch-block.html'
 
