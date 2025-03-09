@@ -1,7 +1,7 @@
 import locale
 from pathlib import Path
 
-import utils
+import common_utils
 from dto import User
 from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from litestar import Litestar
@@ -41,7 +41,7 @@ route_handlers = [
 template_config = TemplateConfig(directory=Path('templates'), engine=JinjaTemplateEngine)
 
 session_auth = SessionAuth[User, ServerSideSessionBackend](
-    retrieve_user_handler=utils.retrieve_user_handler,
+    retrieve_user_handler=common_utils.retrieve_user_handler,
     session_backend_config=ServerSideSessionConfig(),
     exclude=['/login', '/schema', '/static/styles.css', '/static/favicon.ico'],
 )
