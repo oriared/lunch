@@ -1,9 +1,9 @@
 import datetime
 from math import ceil
 
+import common_utils
 import consts
 import dto
-import utils
 from database import queries
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
@@ -36,7 +36,7 @@ async def order_form(
     is_admin: bool = False,
     anonymous: bool = False,
 ) -> HTMXTemplate:
-    date_choices = utils.get_order_date_choices()
+    date_choices = common_utils.get_order_date_choices()
     order = queries.get_order(order_id=order_id) if order_id else None
 
     selected_date = get_selected_date_for_order_form(
@@ -67,9 +67,9 @@ async def order_form(
         selected_second_dish_first_part = queries.get_order_second_dish_first_part(order)
         selected_second_dish_second_part = queries.get_order_second_dish_second_part(order)
         if selected_second_dish_first_part:
-            dish_mode = utils.get_dish_mode(selected_second_dish_first_part)
+            dish_mode = common_utils.get_dish_mode(selected_second_dish_first_part)
         elif selected_second_dish_second_part:
-            dish_mode = utils.get_dish_mode(selected_second_dish_second_part)
+            dish_mode = common_utils.get_dish_mode(selected_second_dish_second_part)
         else:
             dish_mode = consts.DishMode.STANDARD
 

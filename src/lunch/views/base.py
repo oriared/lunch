@@ -2,8 +2,8 @@ import datetime
 from math import ceil
 from typing import Any
 
+import common_utils
 import consts
-import utils
 from database import queries
 from litestar import Request, get, post
 from litestar.exceptions import NotAuthorizedException
@@ -33,7 +33,7 @@ async def login(request: 'Request[Any, Any, Any]') -> Redirect:
     form = await request.form()
     user = queries.get_user_by_username(username=form['username'])
 
-    if not user or not utils.check_password(user=user, password=form['password']):
+    if not user or not common_utils.check_password(user=user, password=form['password']):
         raise NotAuthorizedException
 
     request.set_session({'user_id': user.id})
