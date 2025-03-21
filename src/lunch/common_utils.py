@@ -1,9 +1,9 @@
 import datetime
 from typing import TYPE_CHECKING, Any
 
-import consts
-import dto
-from database import models, queries
+from core import entities
+from core.consts import DishMode
+from core.interactors import DishManager, UserManager
 
 if TYPE_CHECKING:
     from litestar.connection import ASGIConnection
@@ -12,12 +12,12 @@ if TYPE_CHECKING:
 async def retrieve_user_handler(
     session: dict[str, Any],
     connection: 'ASGIConnection[Any, Any, Any, Any]',  # noqa: ARG001
-) -> dto.User | None:
+) -> entities.User | None:
     user_id = session.get('user_id')
-    return queries.get_user_by_id(user_id=user_id) if user_id else None
+    return UserManager().get_by_id(user_id=user_id) if user_id else None
 
 
-def check_password(user: 'models.User', password: str) -> bool:
+def check_password(user: entities.User, password: str) -> bool:
     return user.password == password
 
 
@@ -45,16 +45,14 @@ def get_next_week_work_days() -> list[datetime.date]:
     return [next_monday + datetime.timedelta(days=day_index) for day_index in range(5)]
 
 
-def get_dish_mode(dish: models.Dish) -> str:
-    if dish in queries.get_standard_second_dishes():
-        return consts.DishMode.STANDARD
-    if dish in queries.get_constructor_second_dishes():
-        return consts.DishMode.CONSTRUCTOR
+def get_dish_mode(dish: entities.Dish) -> str:
+    if dish in DishManager().get_standard_second_dishes():
+        return DishMode.STANDARD
 
-    return consts.DishMode.STANDARD
+    return DishMode.CONSTRUCTOR
 
 
-def validate_user_data(data: dict[str, Any], user: models.User | None = None) -> tuple[bool, dict[str, str]]:
+def validate_user_data(data: dict[str, Any], user: entities.User | None = None) -> tuple[bool, dict[str, str]]:
     errors = {}
     required_fields = ['username', 'password', 'name']
     for field in required_fields:
@@ -62,7 +60,7 @@ def validate_user_data(data: dict[str, Any], user: models.User | None = None) ->
             errors[field] = 'Обязательное поле'
 
     if data.get('username'):
-        user_with_same_username = queries.get_user_by_username(username=data['username'])
+        user_with_same_username = UserManager().get_by_username(username=data['username'])
         if user_with_same_username and user_with_same_username != user:
             errors['username'] = 'Такой пользователь уже существует'
 

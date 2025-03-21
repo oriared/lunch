@@ -2,8 +2,9 @@ import datetime
 from math import ceil
 
 import consts
-from common_utils import validate_user_data
-from database import queries
+from common_utils import validate_user_data, get_dates_from_tomorrow_to_weekends, get_next_week_work_days
+from core import entities
+from core.interactors import DishManager, OrderManager, UserManager
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
@@ -14,35 +15,46 @@ from views.utils import get_orders_report_bytes
 
 @get(path='/admin/users')
 async def users_list(page: int = 1) -> HTMXTemplate:
-    users = queries.get_users()
-    page_users = queries.get_users(page=page)
+    users_count = UserManager().get_count()
+    page_users = UserManager().get_all(page=page, per_page=consts.USERS_PER_PAGE)
     context = {
         'users': page_users,
         'selected_module': 'users',
         'page': page,
-        'pages_count': ceil(len(users) / consts.ITEMS_PER_PAGE) or 1,
+        'pages_count': ceil(users_count / consts.USERS_PER_PAGE) or 1,
     }
     return HTMXTemplate(template_name='admin-panel.html', context=context, push_url=False)
 
 
 @get(path='/admin/orders')
 async def orders_list(page: int = 1) -> HTMXTemplate:
-    orders = queries.get_orders()
-    page_orders = queries.get_orders(page=page)
+    orders_count = OrderManager().get_count()
+    orders = OrderManager().get_all(page=page, per_page=consts.ORDERS_PER_PAGE)
+    page_orders = [
+        {
+            'id': order.id,
+            'date': order.date,
+            'comment': order.comment,
+            'dishes': DishManager().get_by_order_id(order.id),
+        }
+        for order in orders
+    ]
     context = {
         'today': datetime.date.today(),
         'orders': page_orders,
         'selected_module': 'orders',
         'page': page,
-        'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
+        'pages_count': ceil(orders_count / consts.USERS_PER_PAGE) or 1,
     }
     return HTMXTemplate(template_name='admin-panel.html', context=context, push_url=False)
 
 
 @post(path='/admin/save-user')
 async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTemplate:
-    user = queries.get_user_by_id(user_id=user_id)
+    user = UserManager().get_by_id(user_id=user_id) if user_id else None
+
     form = await request.form()
+
     user_data = {
         'username': form.get('username', ''),
         'password': form.get('password', ''),
@@ -57,37 +69,49 @@ async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTem
         return HTMXTemplate(template_name='user-form.html', context=context, push_url=False)
 
     if user:
-        queries.update_user(user=user, user_data=user_data)
+        user.username = user_data['username']
+        user.password = user_data['password']
+        user.name = user_data['name']
+        user.is_admin = user_data['is_admin']
     else:
-        queries.create_user(user_data=user_data)
+        user = entities.User(
+            id=None,
+            username=user_data['username'],
+            password=user_data['password'],
+            name=user_data['name'],
+            joined_dt=datetime.datetime.now(),
+            is_admin=user_data['is_admin'],
+        )
 
-    users = queries.get_users()
+    UserManager(user).save()
+
+    users_count = UserManager().get_count()
     context = {
-        'users': queries.get_users(),
+        'users': UserManager().get_all(page=1, per_page=consts.USERS_PER_PAGE),
         'page': 1,
-        'pages_count': ceil(len(users) / consts.ITEMS_PER_PAGE) or 1,
+        'pages_count': ceil(users_count / consts.USERS_PER_PAGE) or 1,
     }
     return HTMXTemplate(template_name='users.html', context=context, push_url=False)
 
 
 @get(path='/admin/user-form')
 async def user_form(user_id: int | None = None) -> HTMXTemplate:
-    user = queries.get_user_by_id(user_id=user_id)
+    user = UserManager().get_by_id(user_id=user_id)
     context = {'user': user}
     return HTMXTemplate(template_name='user-form.html', context=context, push_url=False)
 
 
 @post(path='/admin/cancel-order')
 async def cancel_order(order_id: int) -> Redirect:
-    order = queries.get_order(order_id=order_id)
-    queries.delete_order(order=order)
+    order = OrderManager().get_by_id(order_id=order_id)
+    OrderManager(order).delete()
 
     return Redirect('/admin/orders')
 
 
 @get(path='/admin/download-orders-report')
 async def download_orders_report() -> Response:
-    report_bytes = get_orders_report_bytes(datetime.date.today() + datetime.timedelta(days=1))
+    report_bytes = get_orders_report_bytes((get_dates_from_tomorrow_to_weekends() or get_next_week_work_days())[0])
     return Response(
         media_type='text/csv',
         content=report_bytes,

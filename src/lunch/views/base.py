@@ -4,7 +4,7 @@ from typing import Any
 
 import common_utils
 import consts
-from database import queries
+from core.interactors import OrderManager, UserManager
 from litestar import Request, get, post
 from litestar.exceptions import NotAuthorizedException
 from litestar.response import Redirect, Template
@@ -12,13 +12,13 @@ from litestar.response import Redirect, Template
 
 @get(path='/')
 async def index(request: Request) -> Template:
-    orders = queries.get_user_orders(user=request.user)
-    page_orders = queries.get_user_orders(user=request.user, page=1)
+    user_orders_count = OrderManager().get_count(user_id=request.user.id)
+    page_orders = OrderManager().get_by_user_id(user_id=request.user.id, page=1, per_page=consts.ORDERS_PER_PAGE)
     context = {
         'orders': page_orders,
         'today': datetime.date.today(),
         'page': 1,
-        'pages_count': ceil(len(orders) // consts.ITEMS_PER_PAGE) or 1,
+        'pages_count': ceil(user_orders_count // consts.ORDERS_PER_PAGE) or 1,
     }
     return Template(template_name='index.html', context=context)
 
@@ -31,7 +31,7 @@ async def login_page() -> Template:
 @post(path='/login')
 async def login(request: 'Request[Any, Any, Any]') -> Redirect:
     form = await request.form()
-    user = queries.get_user_by_username(username=form['username'])
+    user = UserManager().get_by_username(username=form['username'])
 
     if not user or not common_utils.check_password(user=user, password=form['password']):
         raise NotAuthorizedException

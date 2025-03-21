@@ -3,8 +3,9 @@ from math import ceil
 
 import common_utils
 import consts
-import dto
-from database import queries
+from core import entities
+from core.consts import DishMode
+from core.interactors import DishManager, OrderManager, UserManager
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
@@ -16,14 +17,23 @@ from views.utils import get_selected_date_for_order_form
 
 @get(path='/my-orders')
 async def my_orders(request: HTMXRequest, page: int = 1) -> HTMXTemplate:
-    orders = queries.get_user_orders(user=request.user)
-    page_orders = queries.get_user_orders(user=request.user, page=page)
+    orders_count = OrderManager().get_count(user_id=request.user.id)
+    orders = OrderManager().get_by_user_id(user_id=request.user.id, page=page, per_page=consts.ORDERS_PER_PAGE)
+    page_orders = [
+        {
+            'id': order.id,
+            'date': order.date,
+            'comment': order.comment,
+            'dishes': DishManager().get_by_order_id(order.id),
+        }
+        for order in orders
+    ]
     context = {
         'orders': page_orders,
         'today': datetime.date.today(),
         'selected_module': 'my-orders',
         'page': page,
-        'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
+        'pages_count': ceil(orders_count / consts.ORDERS_PER_PAGE) or 1,
     }
     return HTMXTemplate(template_name='lunch-block.html', context=context, push_url=False)
 
@@ -37,51 +47,56 @@ async def order_form(
     anonymous: bool = False,
 ) -> HTMXTemplate:
     date_choices = common_utils.get_order_date_choices()
-    order = queries.get_order(order_id=order_id) if order_id else None
+    order = OrderManager().get_by_id(order_id=order_id) if order_id else None
 
     selected_date = get_selected_date_for_order_form(
-        user=request.user, order=order, order_date=order_date, date_choices=date_choices, anonymous=anonymous
+        user=request.user if not anonymous else None,
+        order=order,
+        order_date=order_date,
+        date_choices=date_choices,
     )
     if not selected_date:
         raise NotFoundException('Нет доступных дат для заказа')
 
     if not order and not anonymous:
-        user_orders = queries.get_orders_by_date(date=selected_date, orders=queries.get_user_orders(user=request.user))
+        user_orders = OrderManager().get_by_user_id_and_date(date=selected_date, user_id=request.user.id)
         if user_orders:
             order = user_orders[0]
 
     context = {
         'selected_module': 'order-form',
         'date_choices': date_choices,
-        'dishes': queries.get_first_dishes(date=selected_date),
-        'second_dishes': queries.get_standard_second_dishes(date=selected_date),
-        'second_dishes_first_part': queries.get_constructor_second_dishes(part='first', date=selected_date),
-        'second_dishes_second_part': queries.get_constructor_second_dishes(part='second', date=selected_date),
+        'dishes': DishManager().get_first_dishes(date=selected_date),
+        'second_dishes': DishManager().get_standard_second_dishes(date=selected_date),
+        'second_dishes_first_part': DishManager().get_constructor_second_dishes_first_part(date=selected_date),
+        'second_dishes_second_part': DishManager().get_constructor_second_dishes_second_part(date=selected_date),
         'selected_date': selected_date,
-        'selected_dish_mode': consts.DishMode.STANDARD,
+        'selected_dish_mode': DishMode.STANDARD,
         'is_admin': is_admin,
         'anonymous': anonymous,
+        'order_user': UserManager().get_by_id(user_id=request.user.id) if not anonymous else None,
     }
 
     if order:
-        selected_second_dish_first_part = queries.get_order_second_dish_first_part(order)
-        selected_second_dish_second_part = queries.get_order_second_dish_second_part(order)
+        selected_second_dish_first_part = DishManager().get_order_second_dish_first_part(order_id=order.id)
+        selected_second_dish_second_part = DishManager().get_order_second_dish_second_part(order_id=order.id)
         if selected_second_dish_first_part:
             dish_mode = common_utils.get_dish_mode(selected_second_dish_first_part)
         elif selected_second_dish_second_part:
-            dish_mode = common_utils.get_dish_mode(selected_second_dish_second_part)
+            dish_mode = DishMode.CONSTRUCTOR
         else:
-            dish_mode = consts.DishMode.STANDARD
+            dish_mode = DishMode.STANDARD
 
         context.update(
             {
                 'order': order,
-                'selected_first_dish': queries.get_order_first_dish(order),
-                'selected_second_dish': queries.get_order_second_dish(order),
+                'selected_first_dish': DishManager().get_order_first_dish(order_id=order.id),
+                'selected_second_dish': DishManager().get_order_second_dish(order_id=order.id),
                 'selected_second_dish_first_part': selected_second_dish_first_part,
                 'selected_second_dish_second_part': selected_second_dish_second_part,
                 'selected_dish_mode': dish_mode,
                 'comment': order.comment,
+                'order_user': UserManager().get_by_id(user_id=order.user_id) if order.user_id else None,
             }
         )
 
@@ -90,18 +105,18 @@ async def order_form(
 
 @get(path='/first-dishes')
 async def first_dishes(date: datetime.date, vegan: bool | None = None) -> HTMXTemplate:
-    dishes = queries.get_vegan_dishes(date=date) if vegan else queries.get_first_dishes(date=date)
+    dishes = DishManager().get_vegan_dishes(date=date) if vegan else DishManager().get_first_dishes(date=date)
     return HTMXTemplate(template_name='first-dishes.html', context={'dishes': dishes}, push_url=False)
 
 
 @get(path='/second-dishes')
 async def second_dishes(date: datetime.date, dish_mode: str) -> HTMXTemplate:
     context = {'selected_dish_mode': dish_mode}
-    if dish_mode == consts.DishMode.STANDARD:
-        context['second_dishes'] = queries.get_standard_second_dishes(date=date)
-    elif dish_mode == consts.DishMode.CONSTRUCTOR:
-        context['second_dishes_first_part'] = queries.get_constructor_second_dishes(part='first', date=date)
-        context['second_dishes_second_part'] = queries.get_constructor_second_dishes(part='second', date=date)
+    if dish_mode == DishMode.STANDARD:
+        context['second_dishes'] = DishManager().get_standard_second_dishes(date=date)
+    elif dish_mode == DishMode.CONSTRUCTOR:
+        context['second_dishes_first_part'] = DishManager().get_constructor_second_dishes_first_part(date=date)
+        context['second_dishes_second_part'] = DishManager().get_constructor_second_dishes_second_part(date=date)
     return HTMXTemplate(template_name='second-dishes.html', context=context, push_url=False)
 
 
@@ -116,38 +131,53 @@ async def save_order(
         'selected_module': 'my-orders',
     }
 
+    order = OrderManager().get_by_id(order_id=order_id) if order_id else None
+    order_date = datetime.date.fromisoformat(form['order_date'])
+
     if any([form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')]):
-        order_date = datetime.date.fromisoformat(form['order_date'])
-        lunch = dto.Lunch(
-            date=order_date,
-            dish_mode=form['dish_mode'],
-            first_dish=form['first_dish'],
-            second_dish_first_part=form['second_dish_first_part'],
-            second_dish_second_part=form.get('second_dish_second_part', ''),
-            comment=form.get('comment', ''),
-        )
-        if order_id:
-            order = queries.get_order(order_id=order_id)
-            queries.update_order(order=order, lunch=lunch)
+        if order:
+            order.date = order_date
+            order.comment = form.get('comment', '')
+            OrderManager(order=order).clear_dishes()
         else:
-            user = request.user if not anonymous else None
-            order = queries.create_order(lunch=lunch, user=user)
+            order = entities.Order(
+                id=None,
+                date=order_date,
+                user_id=request.user.id if not anonymous else None,
+                comment=form.get('comment', ''),
+            )
+        OrderManager(order=order).save()
+
+        dishes_ids = [form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')]
+        dishes = [DishManager().get_by_id(int(i)) for i in dishes_ids if i]
+        OrderManager(order=order).add_dishes(dishes=dishes)
+
         context['updated_order'] = order
-    elif order_id:
-        queries.delete_order(order=queries.get_order(order_id=order_id))
+    elif order:
+        OrderManager(order).delete()
 
     if is_admin:
-        orders = queries.get_orders()
-        page_orders = queries.get_orders(page=1)
+        orders_count = OrderManager().get_count()
+        orders = OrderManager().get_all(page=page, per_page=consts.ORDERS_PER_PAGE)
     else:
-        orders = queries.get_user_orders(user=request.user)
-        page_orders = queries.get_user_orders(user=request.user, page=1)
+        orders_count = OrderManager().get_count(user_id=request.user.id)
+        orders = OrderManager().get_by_user_id(user_id=request.user.id, page=page, per_page=consts.ORDERS_PER_PAGE)
+
+    page_orders = [
+        {
+            'id': order.id,
+            'date': order.date,
+            'comment': order.comment,
+            'dishes': DishManager().get_by_order_id(order.id),
+        }
+        for order in orders
+    ]
 
     context.update(
         {
             'orders': page_orders,
             'page': page,
-            'pages_count': ceil(len(orders) / consts.ITEMS_PER_PAGE) or 1,
+            'pages_count': ceil(orders_count / consts.ORDERS_PER_PAGE) or 1,
         }
     )
 
@@ -158,7 +188,7 @@ async def save_order(
 
 @post(path='/cancel-order')
 async def cancel_order(order_id: int) -> Redirect:
-    order = queries.get_order(order_id=order_id)
-    queries.delete_order(order=order)
+    order = OrderManager().get_by_id(order_id=order_id)
+    OrderManager(order=order).delete()
 
     return Redirect('/my-orders')

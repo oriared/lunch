@@ -20,7 +20,7 @@
                 </select>
             </h1>
             {% if request.user.is_admin %}
-                <h2> {{ order.user_id }} </h2>
+                <h2> {{ order_user.name }} </h2>
             {% endif %}
             <label for="firstDish">Выберите первое блюдо:</label>
             <div class="select-dish">

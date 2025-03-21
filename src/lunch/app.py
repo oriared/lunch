@@ -2,7 +2,7 @@ import locale
 from pathlib import Path
 
 import common_utils
-from dto import User
+from core import entities
 from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from litestar import Litestar
 from litestar.contrib.htmx.request import HTMXRequest
@@ -40,7 +40,7 @@ route_handlers = [
 
 template_config = TemplateConfig(directory=Path('templates'), engine=JinjaTemplateEngine)
 
-session_auth = SessionAuth[User, ServerSideSessionBackend](
+session_auth = SessionAuth[entities.User, ServerSideSessionBackend](
     retrieve_user_handler=common_utils.retrieve_user_handler,
     session_backend_config=ServerSideSessionConfig(),
     exclude=['/login', '/schema', '/static/styles.css', '/static/favicon.ico'],
