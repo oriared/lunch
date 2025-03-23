@@ -45,6 +45,14 @@ def get_next_week_work_days() -> list[datetime.date]:
     return [next_monday + datetime.timedelta(days=day_index) for day_index in range(5)]
 
 
+def get_next_work_day() -> datetime.date:
+    today_iso = datetime.date.today().isoweekday()
+    saturday_iso = 6
+    if today_iso + 1 < saturday_iso:
+        return datetime.date.today() + datetime.timedelta(days=1)
+    return datetime.date.today() + datetime.timedelta(days=7 - today_iso)
+
+
 def get_dish_mode(dish: entities.Dish) -> str:
     if dish in DishManager().get_standard_second_dishes():
         return DishMode.STANDARD

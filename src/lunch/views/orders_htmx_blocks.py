@@ -4,7 +4,7 @@ from math import ceil
 import common_utils
 import consts
 from core import entities
-from core.consts import DishMode
+from core.consts import DEADLINE_TIME, DishMode
 from core.interactors import DishManager, OrderManager, UserManager
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
@@ -133,6 +133,26 @@ async def save_order(
 
     order = OrderManager().get_by_id(order_id=order_id) if order_id else None
     order_date = datetime.date.fromisoformat(form['order_date'])
+
+    if not request.user.is_admin and (order.date if order else order_date) <= datetime.date.today():
+        return HTMXTemplate(
+            template_str='Нельзя изменять уже завершенные заказы',
+            push_url=False,
+            re_target='#errorBlock',
+            re_swap='innerHTML',
+        )
+
+    if (
+        not request.user.is_admin
+        and (order.date if order else order_date) == datetime.date.today() + datetime.timedelta(days=1)
+        and datetime.datetime.now().time() > DEADLINE_TIME
+    ):
+        return HTMXTemplate(
+            template_str='Заказ на завтра нельзя редактировать после 19:00',
+            push_url=False,
+            re_target='#errorBlock',
+            re_swap='innerHTML',
+        )
 
     if any([form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')]):
         if order:
