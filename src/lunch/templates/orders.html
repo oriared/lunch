@@ -13,7 +13,7 @@
             {% for order in orders %}
                 <tr {% if updated_order and order.id == updated_order.id %} class="highlight-row" {% endif %}>
                     <td>{{ order.date.strftime('%d.%m.%Y') }}</td>
-                    <td>{{ order.user_id }}</td>
+                    <td>{{ order.user.name }}</td>
                     <td>{% for dish in order.dishes %}{{ dish.name }} {% endfor %}</td>
                     <td>{{ order.comment }}</td>
                     <td>

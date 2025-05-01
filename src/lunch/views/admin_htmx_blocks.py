@@ -36,6 +36,7 @@ async def orders_list(page: int = 1) -> HTMXTemplate:
             'date': order.date,
             'comment': order.comment,
             'dishes': DishManager().get_by_order_id(order.id),
+            'user': UserManager().get_by_id(order.user_id),
         }
         for order in orders
     ]

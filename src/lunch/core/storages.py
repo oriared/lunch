@@ -1,6 +1,6 @@
 import datetime
 
-from core import in_memory_db, entities
+from core import entities, in_memory_db
 
 
 class ObjectDoesNotExistsError(Exception):
