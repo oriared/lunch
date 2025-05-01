@@ -10,7 +10,7 @@
         </thead>
         <tbody>
             {% for order in orders %}
-                <tr {% if order.id == updated_order.id %} class="highlight-row" {% endif %}>
+                <tr {% if updated_order and order.id == updated_order.id %} class="highlight-row" {% endif %}>
                     <td>{{ order.date.strftime('%d.%m.%Y') }}</td>
                     <td>{% for dish in order.dishes %}{{ dish.name }} {% endfor %}</td>
                     <td>{{ order.comment }}</td>

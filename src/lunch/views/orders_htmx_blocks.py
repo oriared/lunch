@@ -1,9 +1,8 @@
 import datetime
 from math import ceil
 
-import common_utils
 import consts
-from core import entities
+from core import datatools, entities
 from core.consts import DEADLINE_TIME, DishMode
 from core.interactors import DishManager, OrderManager, UserManager
 from litestar import get, post
@@ -46,7 +45,7 @@ async def order_form(
     is_admin: bool = False,
     anonymous: bool = False,
 ) -> HTMXTemplate:
-    date_choices = common_utils.get_order_date_choices()
+    date_choices = datatools.get_dates_available_for_making_order()
     order = OrderManager().get_by_id(order_id=order_id) if order_id else None
 
     selected_date = get_selected_date_for_order_form(
@@ -81,7 +80,7 @@ async def order_form(
         selected_second_dish_first_part = DishManager().get_order_second_dish_first_part(order_id=order.id)
         selected_second_dish_second_part = DishManager().get_order_second_dish_second_part(order_id=order.id)
         if selected_second_dish_first_part:
-            dish_mode = common_utils.get_dish_mode(selected_second_dish_first_part)
+            dish_mode = datatools.get_dish_mode(selected_second_dish_first_part)
         elif selected_second_dish_second_part:
             dish_mode = DishMode.CONSTRUCTOR
         else:
@@ -148,7 +147,7 @@ async def save_order(
         and datetime.datetime.now().time() > DEADLINE_TIME
     ):
         return HTMXTemplate(
-            template_str='Заказ на завтра нельзя редактировать после 19:00',
+            template_str=f'Заказ на завтра нельзя редактировать после {DEADLINE_TIME.strftime("%H:%M")}',
             push_url=False,
             re_target='#errorBlock',
             re_swap='innerHTML',

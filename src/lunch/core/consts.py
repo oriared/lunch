@@ -2,6 +2,11 @@ import datetime
 
 
 class DishMode:
+    """
+    Стандарт - стандартное первое и стандартное второе блюда
+    Конструктор - стандартное первое блюдо и второе блюдо собираемое из двух частей (горячее + гарнир)
+    """
+
     STANDARD = 'STANDARD'
     CONSTRUCTOR = 'CONSTRUCTOR'
 
@@ -14,4 +19,5 @@ class CategoryCode:
     VEGAN = 'VEGAN'
 
 
+# Время после которого создание и редактирование заказов на завтра невозможно
 DEADLINE_TIME = datetime.time(19, 00, 00)

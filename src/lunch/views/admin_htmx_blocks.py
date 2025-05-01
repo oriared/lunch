@@ -2,11 +2,8 @@ import datetime
 from math import ceil
 
 import consts
-from common_utils import (
-    get_next_work_day,
-    validate_user_data,
-)
-from core import entities
+from common_utils import validate_user_data
+from core import datatools, entities
 from core.interactors import DishManager, OrderManager, UserManager
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
@@ -114,7 +111,7 @@ async def cancel_order(order_id: int) -> Redirect:
 
 @get(path='/admin/download-orders-report')
 async def download_orders_report() -> Response:
-    report_bytes = get_orders_report_bytes(get_next_work_day())
+    report_bytes = get_orders_report_bytes(datatools.get_next_work_day())
     return Response(
         media_type='text/csv',
         content=report_bytes,
