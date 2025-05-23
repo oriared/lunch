@@ -1,19 +1,23 @@
 import datetime
+from dataclasses import asdict
 from math import ceil
-from typing import Any
 
 import consts
+from common_utils import RequestUserDTO
 from core import datatools
 from core.interactors import OrderManager, UserManager
 from litestar import Request, get, post
 from litestar.exceptions import NotAuthorizedException
 from litestar.response import Redirect, Template
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @get(path='/')
-async def index(request: Request) -> Template:
-    user_orders_count = OrderManager().get_count(user_id=request.user.id)
-    page_orders = OrderManager().get_by_user_id(user_id=request.user.id, page=1, per_page=consts.ORDERS_PER_PAGE)
+async def index(request: Request, db_session: AsyncSession) -> Template:
+    user_orders_count = await OrderManager(session=db_session).get_user_orders_count(user_id=request.user.id)
+    page_orders = await OrderManager(session=db_session).get_by_user_id(
+        user_id=request.user.id, page=1, per_page=consts.ORDERS_PER_PAGE
+    )
     context = {
         'orders': page_orders,
         'today': datetime.date.today(),
@@ -29,20 +33,21 @@ async def login_page() -> Template:
 
 
 @post(path='/login')
-async def login(request: 'Request[Any, Any, Any]') -> Redirect:
+async def login(request: Request, db_session: AsyncSession) -> Redirect:
     form = await request.form()
-    user = UserManager().get_by_username(username=form['username'])
+    user = await UserManager(session=db_session).get_by_username(username=form['username'])
 
     if not user or not datatools.check_password(user=user, password=form['password']):
         raise NotAuthorizedException
 
-    request.set_session({'user_id': user.id})
+    user_dto = RequestUserDTO(id=user.id, username=user.username, name=user.name, is_admin=user.is_admin)
+    request.set_session({'user': asdict(user_dto)})
 
     return Redirect('/')
 
 
 @post(path='/logout')
-async def logout(request: 'Request[Any, Any, Any]') -> Redirect:
+async def logout(request: Request) -> Redirect:
     request.clear_session()
 
     return Redirect('/login_page')

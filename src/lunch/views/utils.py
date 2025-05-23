@@ -4,9 +4,11 @@ import io
 
 from core import entities
 from core.interactors import DishManager, OrderManager, UserManager
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def get_selected_date_for_order_form(
+async def get_selected_date_for_order_form(
+    db_session: AsyncSession,
     user: entities.User,
     order: entities.Order | None,
     order_date: datetime.date | None,
@@ -18,7 +20,8 @@ def get_selected_date_for_order_form(
         selected_date = order_date
     elif date_choices and user:
         for date in date_choices:
-            if not OrderManager().get_by_user_id_and_date(user_id=user.id, date=date):
+            user_order = await OrderManager(session=db_session).get_by_user_id_and_date(user_id=user.id, date=date)
+            if not user_order:
                 selected_date = date
                 break
         else:
@@ -30,14 +33,14 @@ def get_selected_date_for_order_form(
     return selected_date
 
 
-def get_orders_report_bytes(date: datetime.date) -> bytes:
-    orders = OrderManager().get_by_date(date=date)
+async def get_orders_report_bytes(db_session: AsyncSession, date: datetime.date) -> bytes:
+    orders = await OrderManager(session=db_session).get_by_date(date=date)
 
     headers = ['ФИО', 'Заказ', 'Комментарий']
     rows = []
     for order in orders:
-        user = UserManager().get_by_id(order.user_id)
-        dishes = DishManager().get_by_order_id(order_id=order.id)
+        user = await UserManager(session=db_session).get_by_id(order.user_id)
+        dishes = await DishManager(session=db_session).get_by_order_id(order_id=order.id)
         dishes_text = ', '.join([dish.name for dish in dishes])
         rows.append([user.name if user else '-', dishes_text, order.comment or ''])
 

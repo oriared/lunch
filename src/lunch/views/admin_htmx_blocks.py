@@ -9,14 +9,15 @@ from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
 from litestar.response import Redirect, Response
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from views.utils import get_orders_report_bytes
 
 
 @get(path='/admin/users')
-async def users_list(page: int = 1) -> HTMXTemplate:
-    users_count = UserManager().get_count()
-    page_users = UserManager().get_all(page=page, per_page=consts.USERS_PER_PAGE)
+async def users_list(db_session: AsyncSession, page: int = 1) -> HTMXTemplate:
+    users_count = await UserManager(session=db_session).get_count()
+    page_users = await UserManager(session=db_session).get_all(page=page, per_page=consts.USERS_PER_PAGE)
     context = {
         'users': page_users,
         'selected_module': 'users',
@@ -27,16 +28,16 @@ async def users_list(page: int = 1) -> HTMXTemplate:
 
 
 @get(path='/admin/orders')
-async def orders_list(page: int = 1) -> HTMXTemplate:
-    orders_count = OrderManager().get_count()
-    orders = OrderManager().get_all(page=page, per_page=consts.ORDERS_PER_PAGE)
+async def orders_list(db_session: AsyncSession, page: int = 1) -> HTMXTemplate:
+    orders_count = await OrderManager(session=db_session).get_count()
+    orders = await OrderManager(session=db_session).get_all(page=page, per_page=consts.ORDERS_PER_PAGE)
     page_orders = [
         {
             'id': order.id,
             'date': order.date,
             'comment': order.comment,
-            'dishes': DishManager().get_by_order_id(order.id),
-            'user': UserManager().get_by_id(order.user_id),
+            'dishes': await DishManager(session=db_session).get_by_order_id(order.id),
+            'user': await UserManager(session=db_session).get_by_id(order.user_id),
         }
         for order in orders
     ]
@@ -51,8 +52,8 @@ async def orders_list(page: int = 1) -> HTMXTemplate:
 
 
 @post(path='/admin/save-user')
-async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTemplate:
-    user = UserManager().get_by_id(user_id=user_id) if user_id else None
+async def save_user(request: HTMXRequest, db_session: AsyncSession, user_id: int | None = None) -> HTMXTemplate:
+    user = await UserManager(session=db_session).get_by_id(user_id=user_id) if user_id else None
 
     form = await request.form()
 
@@ -60,10 +61,10 @@ async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTem
         'username': form.get('username', ''),
         'password': form.get('password', ''),
         'name': form.get('name', ''),
-        'is_admin': form.get('is_admin', False),
+        'is_admin': form.get('is_admin') == 'on',
     }
 
-    is_valid, errors = validate_user_data(data=user_data, user=user)
+    is_valid, errors = await validate_user_data(data=user_data, user=user, db_session=db_session)
 
     if not is_valid:
         context = {'user': user, 'errors': errors}
@@ -84,11 +85,12 @@ async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTem
             is_admin=user_data['is_admin'],
         )
 
-    UserManager(user).save()
+    await UserManager(session=db_session, user=user).save()
+    # await db_session.commit()
 
-    users_count = UserManager().get_count()
+    users_count = await UserManager(session=db_session).get_count()
     context = {
-        'users': UserManager().get_all(page=1, per_page=consts.USERS_PER_PAGE),
+        'users': await UserManager(session=db_session).get_all(page=1, per_page=consts.USERS_PER_PAGE),
         'page': 1,
         'pages_count': ceil(users_count / consts.USERS_PER_PAGE) or 1,
     }
@@ -96,23 +98,23 @@ async def save_user(request: HTMXRequest, user_id: int | None = None) -> HTMXTem
 
 
 @get(path='/admin/user-form')
-async def user_form(user_id: int | None = None) -> HTMXTemplate:
-    user = UserManager().get_by_id(user_id=user_id)
+async def user_form(db_session: AsyncSession, user_id: int | None = None) -> HTMXTemplate:
+    user = await UserManager(session=db_session).get_by_id(user_id=user_id)
     context = {'user': user}
     return HTMXTemplate(template_name='user-form.html', context=context, push_url=False)
 
 
 @post(path='/admin/cancel-order')
-async def cancel_order(order_id: int) -> Redirect:
-    order = OrderManager().get_by_id(order_id=order_id)
-    OrderManager(order).delete()
+async def cancel_order(db_session: AsyncSession, order_id: int) -> Redirect:
+    order = await OrderManager(session=db_session).get_by_id(order_id=order_id)
+    await OrderManager(session=db_session, order=order).delete()
 
     return Redirect('/admin/orders')
 
 
 @get(path='/admin/download-orders-report')
-async def download_orders_report() -> Response:
-    report_bytes = get_orders_report_bytes(datatools.get_next_work_day())
+async def download_orders_report(db_session: AsyncSession) -> Response:
+    report_bytes = await get_orders_report_bytes(db_session=db_session, date=datatools.get_next_work_day())
     return Response(
         media_type='text/csv',
         content=report_bytes,

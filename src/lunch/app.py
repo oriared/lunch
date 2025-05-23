@@ -1,14 +1,18 @@
 import locale
 from pathlib import Path
 
+from advanced_alchemy.extensions.litestar import EngineConfig
+
 import common_utils
 from core import entities
+from core.sqlalchemy_db import Base
 from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from litestar import Litestar
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar.middleware.session.server_side import ServerSideSessionBackend, ServerSideSessionConfig
+from litestar.plugins.sqlalchemy import SQLAlchemyAsyncConfig, SQLAlchemyPlugin
 from litestar.security.session_auth import SessionAuth
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
@@ -52,10 +56,21 @@ exception_handlers = {
 }
 
 
+db_config = SQLAlchemyAsyncConfig(
+    connection_string='sqlite+aiosqlite:///db.sqlite',
+    metadata=Base.metadata,
+    create_all=True,
+    before_send_handler='autocommit',
+    engine_config=EngineConfig(echo=True),
+)
+
+
 app = Litestar(
     route_handlers=route_handlers,
     request_class=HTMXRequest,
     template_config=template_config,
     on_app_init=[session_auth.on_app_init],
     exception_handlers=exception_handlers,
+    dependencies={'db_session': common_utils.provide_transaction},
+    plugins=[SQLAlchemyPlugin(db_config)],
 )
