@@ -10,6 +10,9 @@ class UserManager:
         self.user = user
         self.storage = UserSQLAlchemyStorage(session=kwargs['session'])
 
+    class UserNotFoundError(Exception):
+        pass
+
     async def get_all(self, page: int | None = None, per_page: int | None = None) -> list[entities.User]:
         offset = (page - 1) * per_page
         return await self.storage.get_all(offset=offset, limit=per_page)
@@ -35,6 +38,9 @@ class OrderManager:
     def __init__(self, order: entities.Order | None = None, **kwargs) -> None:  # noqa: ANN003
         self.order = order
         self.storage = OrderSQLAlchemyStorage(session=kwargs['session'])
+
+    class OrderNotFoundError(Exception):
+        pass
 
     async def get_by_id(self, order_id: int) -> entities.Order:
         return await self.storage.get_by_id(order_id=order_id)
@@ -63,6 +69,8 @@ class OrderManager:
         return self.order
 
     async def delete(self) -> None:
+        if not self.order:
+            raise self.OrderNotFoundError()
         await self.storage.delete(order=self.order)
 
     async def get_count(self) -> int:
@@ -72,9 +80,13 @@ class OrderManager:
         return await self.storage.get_user_orders_count(user_id=user_id)
 
     async def add_dishes(self, dishes_ids: list[int]) -> None:
+        if not self.order:
+            raise self.OrderNotFoundError()
         await self.storage.add_dishes(order=self.order, dishes_ids=dishes_ids)
 
     async def clear_dishes(self) -> None:
+        if not self.order:
+            raise self.OrderNotFoundError()
         await self.storage.clear_dishes(order=self.order)
 
 
@@ -82,6 +94,9 @@ class DishManager:
     def __init__(self, dish: entities.Dish | None = None, **kwargs) -> None:  # noqa ANN003, ARG002
         self.dish = dish
         self.storage = DishSQLAlchemyStorage(session=kwargs['session'])
+
+    class DishNotFoundError(Exception):
+        pass
 
     async def get_by_id(self, dish_id: int) -> entities.Dish | None:
         return await self.storage.get_by_id(dish_id=dish_id)

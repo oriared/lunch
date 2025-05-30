@@ -1,9 +1,8 @@
 import locale
 from pathlib import Path
 
-from advanced_alchemy.extensions.litestar import EngineConfig
-
 import common_utils
+from advanced_alchemy.extensions.litestar import EngineConfig
 from core import entities
 from core.sqlalchemy_db import Base
 from exception_handlers import authentication_error_handler, page_not_found_error_handler
@@ -57,7 +56,7 @@ exception_handlers = {
 
 
 db_config = SQLAlchemyAsyncConfig(
-    connection_string='sqlite+aiosqlite:///db.sqlite',
+    connection_string='sqlite+aiosqlite:///db.sqlite3',
     metadata=Base.metadata,
     create_all=True,
     before_send_handler='autocommit',

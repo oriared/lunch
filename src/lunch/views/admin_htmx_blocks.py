@@ -36,7 +36,9 @@ async def orders_list(db_session: AsyncSession, page: int = 1) -> HTMXTemplate:
             'id': order.id,
             'date': order.date,
             'comment': order.comment,
-            'dishes': await DishManager(session=db_session).get_by_order_id(order.id),
+            'dishes': ', '.join(
+                dish.name for dish in await DishManager(session=db_session).get_by_order_id(order.id)
+            ).capitalize(),
             'user': await UserManager(session=db_session).get_by_id(order.user_id),
         }
         for order in orders
@@ -108,6 +110,7 @@ async def user_form(db_session: AsyncSession, user_id: int | None = None) -> HTM
 async def cancel_order(db_session: AsyncSession, order_id: int) -> Redirect:
     order = await OrderManager(session=db_session).get_by_id(order_id=order_id)
     await OrderManager(session=db_session, order=order).delete()
+    await db_session.commit()
 
     return Redirect('/admin/orders')
 

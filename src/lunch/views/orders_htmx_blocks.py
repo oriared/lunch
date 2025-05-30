@@ -26,7 +26,9 @@ async def my_orders(request: HTMXRequest, db_session: AsyncSession, page: int = 
             'id': order.id,
             'date': order.date,
             'comment': order.comment,
-            'dishes': await DishManager(session=db_session).get_by_order_id(order.id),
+            'dishes': ', '.join(
+                dish.name for dish in await DishManager(session=db_session).get_by_order_id(order.id)
+            ).capitalize(),
         }
         for order in orders
     ]
@@ -157,7 +159,7 @@ async def save_order(
 ) -> HTMXTemplate:
     form = await request.form()
 
-    context = {
+    context: dict = {
         'today': datetime.date.today(),
         'selected_module': 'my-orders',
     }
@@ -199,7 +201,9 @@ async def save_order(
             )
         order = await OrderManager(session=db_session, order=order).save()
 
-        dishes_ids = [i for i in (form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')) if i]
+        dishes_ids = [
+            i for i in (form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')) if i
+        ]
         await OrderManager(session=db_session, order=order).add_dishes(dishes_ids=dishes_ids)
 
         context['updated_order'] = order
@@ -220,7 +224,10 @@ async def save_order(
             'id': order.id,
             'date': order.date,
             'comment': order.comment,
-            'dishes': await DishManager(session=db_session).get_by_order_id(order.id),
+            'dishes': ', '.join(
+                dish.name for dish in await DishManager(session=db_session).get_by_order_id(order.id)
+            ).capitalize(),
+            'user': await UserManager(session=db_session).get_by_id(order.user_id),
         }
         for order in orders
     ]
@@ -242,5 +249,6 @@ async def save_order(
 async def cancel_order(order_id: int, db_session: AsyncSession) -> Redirect:
     order = await OrderManager(session=db_session).get_by_id(order_id=order_id)
     await OrderManager(session=db_session, order=order).delete()
+    await db_session.commit()
 
     return Redirect('/my-orders')

@@ -5,7 +5,7 @@ from math import ceil
 import consts
 from common_utils import RequestUserDTO
 from core import datatools
-from core.interactors import OrderManager, UserManager
+from core.interactors import DishManager, OrderManager, UserManager
 from litestar import Request, get, post
 from litestar.exceptions import NotAuthorizedException
 from litestar.response import Redirect, Template
@@ -15,9 +15,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 @get(path='/')
 async def index(request: Request, db_session: AsyncSession) -> Template:
     user_orders_count = await OrderManager(session=db_session).get_user_orders_count(user_id=request.user.id)
-    page_orders = await OrderManager(session=db_session).get_by_user_id(
+    orders = await OrderManager(session=db_session).get_by_user_id(
         user_id=request.user.id, page=1, per_page=consts.ORDERS_PER_PAGE
     )
+    page_orders = [
+        {
+            'id': order.id,
+            'date': order.date,
+            'comment': order.comment,
+            'dishes': ', '.join(
+                dish.name for dish in await DishManager(session=db_session).get_by_order_id(order.id)
+            ).capitalize(),
+        }
+        for order in orders
+    ]
     context = {
         'orders': page_orders,
         'today': datetime.date.today(),

@@ -1,7 +1,8 @@
 import datetime
 
-from sqlalchemy import and_, func, select, or_
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from core import entities, sqlalchemy_db
 
@@ -26,20 +27,8 @@ class UserSQLAlchemyStorage:
             joined_dt=user.joined_dt,
         )
 
-    @staticmethod
-    def entity_to_model(user: entities.User) -> sqlalchemy_db.User:
-        return sqlalchemy_db.User(
-            id=user.id,
-            username=user.username,
-            password=user.password,
-            name=user.name,
-            is_admin=user.is_admin,
-            is_active=user.is_active,
-            joined_dt=user.joined_dt,
-        )
-
     async def get_all(self, offset: int = 0, limit: int | None = None) -> list[entities.User]:
-        query = select(sqlalchemy_db.User)
+        query = select(sqlalchemy_db.User).order_by(sqlalchemy_db.User.id.desc())
         if offset:
             query = query.offset(offset)
         if limit:
@@ -58,7 +47,15 @@ class UserSQLAlchemyStorage:
         return self.model_to_entity(user) if user else None
 
     async def add(self, user: entities.User) -> entities.User:
-        user_model = self.entity_to_model(user)
+        user_model = sqlalchemy_db.User(
+            id=user.id,
+            username=user.username,
+            password=user.password,
+            name=user.name,
+            is_admin=user.is_admin,
+            is_active=user.is_active,
+            joined_dt=user.joined_dt,
+        )
         self.session.add(user_model)
         await self.session.flush()
         return self.model_to_entity(user_model)
@@ -98,17 +95,8 @@ class OrderSQLAlchemyStorage:
             comment=order.comment,
         )
 
-    @staticmethod
-    def entity_to_model(order: entities.Order) -> sqlalchemy_db.Order:
-        return sqlalchemy_db.Order(
-            id=order.id,
-            date=order.date,
-            user_id=order.user_id,
-            comment=order.comment,
-        )
-
     async def get_all(self, offset: int = 0, limit: int | None = None) -> list[entities.Order]:
-        query = select(sqlalchemy_db.Order)
+        query = select(sqlalchemy_db.Order).order_by(sqlalchemy_db.Order.date.desc(), sqlalchemy_db.Order.id.desc())
         if offset:
             query = query.offset(offset)
         if limit:
@@ -123,7 +111,11 @@ class OrderSQLAlchemyStorage:
         return self.model_to_entity(order) if order else None
 
     async def get_by_user_id(self, user_id: int, offset: int = 0, limit: int | None = None) -> list[entities.Order]:
-        query = select(sqlalchemy_db.Order).where(sqlalchemy_db.Order.user_id == user_id)
+        query = (
+            select(sqlalchemy_db.Order)
+            .where(sqlalchemy_db.Order.user_id == user_id)
+            .order_by(sqlalchemy_db.Order.date.desc(), sqlalchemy_db.Order.id.desc())
+        )
         if offset:
             query = query.offset(offset)
         if limit:
@@ -132,7 +124,11 @@ class OrderSQLAlchemyStorage:
         return [self.model_to_entity(order) for order in result.all()]
 
     async def get_by_date(self, date: datetime.date, offset: int = 0, limit: int | None = None) -> list[entities.Order]:
-        query = select(sqlalchemy_db.Order).where(sqlalchemy_db.Order.date == date)
+        query = (
+            select(sqlalchemy_db.Order)
+            .where(sqlalchemy_db.Order.date == date)
+            .order_by(sqlalchemy_db.Order.date.desc(), sqlalchemy_db.Order.id.desc())
+        )
         if offset:
             query = query.offset(offset)
         if limit:
@@ -141,14 +137,21 @@ class OrderSQLAlchemyStorage:
         return [self.model_to_entity(order) for order in result.all()]
 
     async def get_by_user_id_and_date(self, user_id: int, date: datetime.date) -> list[entities.Order]:
-        query = select(sqlalchemy_db.Order).where(
-            (sqlalchemy_db.Order.user_id == user_id) & (sqlalchemy_db.Order.date == date)
+        query = (
+            select(sqlalchemy_db.Order)
+            .where((sqlalchemy_db.Order.user_id == user_id) & (sqlalchemy_db.Order.date == date))
+            .order_by(sqlalchemy_db.Order.date.desc(), sqlalchemy_db.Order.id.desc())
         )
         result = await self.session.scalars(query)
         return [self.model_to_entity(order) for order in result.all()]
 
     async def add(self, order: entities.Order) -> entities.Order:
-        order_model = self.entity_to_model(order)
+        order_model = sqlalchemy_db.Order(
+            id=order.id,
+            date=order.date,
+            user_id=order.user_id,
+            comment=order.comment,
+        )
         self.session.add(order_model)
         await self.session.flush()
         return self.model_to_entity(order_model)
@@ -164,9 +167,10 @@ class OrderSQLAlchemyStorage:
     async def delete(self, order: entities.Order) -> None:
         order_model = await self._get_by_id(order.id)
         await self.session.delete(order_model)
+        await self.session.flush()
 
     async def get_count(self) -> int:
-        query = select(func.count(sqlalchemy_db.User.id))
+        query = select(func.count(sqlalchemy_db.Order.id))
         return await self.session.scalar(query)
 
     async def get_user_orders_count(self, user_id: int) -> int:
@@ -179,8 +183,13 @@ class OrderSQLAlchemyStorage:
         await self.session.execute(stmt, order_dishes)
 
     async def clear_dishes(self, order: entities.Order) -> None:
-        stmt = sqlalchemy_db.order_dish.delete().where(sqlalchemy_db.order_dish.order_id == order.id)
-        await self.session.execute(stmt)
+        query = (
+            select(sqlalchemy_db.Order)
+            .where(sqlalchemy_db.Order.id == order.id)
+            .options(selectinload(sqlalchemy_db.Order.dishes))
+        )
+        order_model = await self.session.scalar(query)
+        order_model.dishes = []
 
     async def _get_by_id(self, id: int) -> sqlalchemy_db.Order | None:
         query = select(sqlalchemy_db.Order).where(sqlalchemy_db.Order.id == id)
@@ -199,27 +208,23 @@ class DishSQLAlchemyStorage:
             weekday=dish.weekday,
         )
 
-    @staticmethod
-    def entity_to_model(dish: entities.Dish) -> sqlalchemy_db.Dish:
-        return sqlalchemy_db.Dish(
-            id=dish.id,
-            name=dish.name,
-            weekday=dish.weekday,
-        )
-
     async def get_by_id(self, dish_id: int) -> entities.Dish | None:
         query = select(sqlalchemy_db.Dish).where(sqlalchemy_db.Dish.id == dish_id)
         dish = await self.session.scalar(query)
         return self.model_to_entity(dish) if dish else None
 
     async def get_by_ids(self, dish_ids: list[int]) -> list[entities.Dish]:
-        query = select(sqlalchemy_db.Dish).where(sqlalchemy_db.Dish.id.in_(dish_ids))
+        query = (
+            select(sqlalchemy_db.Dish).where(sqlalchemy_db.Dish.id.in_(dish_ids)).order_by(sqlalchemy_db.Dish.id.asc())
+        )
         dishes = await self.session.scalars(query)
         return [self.model_to_entity(dish) for dish in dishes.all()]
 
     async def get_by_category_code(self, category_code: str, date: datetime.date | None = None) -> list[entities.Dish]:
-        query = select(sqlalchemy_db.Dish).where(
-            sqlalchemy_db.Dish.categories.any(sqlalchemy_db.Category.code == category_code)
+        query = (
+            select(sqlalchemy_db.Dish)
+            .where(sqlalchemy_db.Dish.categories.any(sqlalchemy_db.Category.code == category_code))
+            .order_by(sqlalchemy_db.Dish.id.asc())
         )
         if date:
             weekday = date.isoweekday()
@@ -229,16 +234,24 @@ class DishSQLAlchemyStorage:
         return [self.model_to_entity(dish) for dish in dishes.all()]
 
     async def get_by_order_id(self, order_id: int) -> list[entities.Dish]:
-        query = select(sqlalchemy_db.Dish).where(sqlalchemy_db.Dish.orders.any(sqlalchemy_db.Order.id == order_id))
+        query = (
+            select(sqlalchemy_db.Dish)
+            .where(sqlalchemy_db.Dish.orders.any(sqlalchemy_db.Order.id == order_id))
+            .order_by(sqlalchemy_db.Dish.id.asc())
+        )
         dishes = await self.session.scalars(query)
         return [self.model_to_entity(dish) for dish in dishes.all()]
 
     async def get_by_category_code_and_order_id(self, category_code: str, order_id: int) -> list[entities.Dish]:
-        query = select(sqlalchemy_db.Dish).where(
-            and_(
-                sqlalchemy_db.Dish.categories.any(sqlalchemy_db.Category.code == category_code),
-                sqlalchemy_db.Dish.orders.any(sqlalchemy_db.Order.id == order_id),
+        query = (
+            select(sqlalchemy_db.Dish)
+            .where(
+                and_(
+                    sqlalchemy_db.Dish.categories.any(sqlalchemy_db.Category.code == category_code),
+                    sqlalchemy_db.Dish.orders.any(sqlalchemy_db.Order.id == order_id),
+                )
             )
+            .order_by(sqlalchemy_db.Dish.id.asc())
         )
         dishes = await self.session.scalars(query)
         return [self.model_to_entity(dish) for dish in dishes.all()]
