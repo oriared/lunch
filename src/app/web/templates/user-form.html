@@ -11,15 +11,15 @@
             <input name="name" value="{% if user %}{{ user.name }}{% endif %}">
 
             <label>Логин</label>
-            <input name="username" value="{% if user %}{{ user.username }}{% endif %}">
             {% if errors and 'username' in errors %}
                 <div class="error-message">{{ errors['username'] }}</div>
             {% endif %}
+            <input name="username" value="{% if user %}{{ user.username }}{% endif %}">
             <label>Пароль</label>
-            <input type="password" name="password" value="{% if user %}{{ user.password }}{% endif %}">
             {% if errors and 'password' in errors %}
                 <div class="error-message">{{ errors['password'] }}</div>
             {% endif %}
+            <input type="password" name="password" value="{% if user %}{{ user.password }}{% endif %}">
         </div>
         <div>
             <label>Админ</label>

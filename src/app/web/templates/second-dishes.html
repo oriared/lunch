@@ -1,0 +1,22 @@
+<div class="select-second-dish">
+    <select name="second_dish_first_part">
+        <option value="" selected>...</option>
+        {% if selected_dish_mode == "CONSTRUCTOR" %}
+            {% for dish in second_dishes_first_part %}
+                <option value="{{ dish.id }}" {% if dish.weekday and not dish.weekday == isoweekday %} disabled class="dish-value-disabled" {% endif %}{% if selected_second_dish_first_part == dish %} selected {% endif %}>{{ dish.name }}</option>
+            {% endfor %}
+        {% else %}
+            {% for dish in second_dishes %}
+                <option value="{{ dish.id }}" {% if dish.weekday and not dish.weekday == isoweekday %} disabled class="dish-value-disabled" {% endif %}{% if selected_second_dish == dish %} selected {% endif %}>{{ dish.name }}</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+</div>
+<div class="select-second-dish">
+    <select name="second_dish_second_part" {% if selected_dish_mode != 'CONSTRUCTOR' %} disabled {% endif %}>
+        <option value="" selected>...</option>
+        {% for dish in second_dishes_second_part %}
+            <option value="{{ dish.id }}" {% if dish.weekday and not dish.weekday == isoweekday %} disabled class="dish-value-disabled" {% endif %}{% if selected_second_dish_second_part == dish %} selected {% endif %}>{{ dish.name }}</option>
+        {% endfor %}
+    </select>
+</div>

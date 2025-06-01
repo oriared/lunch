@@ -1,0 +1,4 @@
+<option value="" selected>...</option>
+{% for dish in dishes %}
+<option value="{{ dish.id }}" {% if dish.weekday and not dish.weekday == isoweekday %} disabled class="dish-value-disabled" {% endif %} {% if dish == selected_first_dish %} selected {% endif %}>{{ dish.name }}</option>
+{% endfor %}

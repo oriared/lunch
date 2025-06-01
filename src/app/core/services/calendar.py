@@ -1,14 +1,6 @@
 import datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core import entities
-from core.consts import DEADLINE_TIME, DishMode
-from core.interactors import DishManager
-
-
-def check_password(user: entities.User, password: str) -> bool:
-    return user.password == password
+from core.consts import DEADLINE_TIME
 
 
 def get_dates_available_for_making_order() -> list[datetime.date]:
@@ -55,10 +47,3 @@ def get_next_work_day() -> datetime.date:
     if today_iso + 1 < saturday_iso:
         return today + datetime.timedelta(days=1)
     return today + datetime.timedelta(days=7 - today_iso)
-
-
-async def get_dish_mode(db_session: AsyncSession, dish: entities.Dish) -> str:
-    if dish in await DishManager(session=db_session).get_standard_second_dishes():
-        return DishMode.STANDARD
-
-    return DishMode.CONSTRUCTOR

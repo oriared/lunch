@@ -1,25 +1,25 @@
 import locale
 from pathlib import Path
 
-import common_utils
-from advanced_alchemy.extensions.litestar import EngineConfig
-from core import entities
-from core.sqlalchemy_db import Base
+from config import DatabaseConfig
+from core.database.di import provide_db_session
 from exception_handlers import authentication_error_handler, page_not_found_error_handler
 from litestar import Litestar
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.exceptions import NotAuthorizedException, NotFoundException
 from litestar.middleware.session.server_side import ServerSideSessionBackend, ServerSideSessionConfig
-from litestar.plugins.sqlalchemy import SQLAlchemyAsyncConfig, SQLAlchemyPlugin
+from litestar.plugins.sqlalchemy import SQLAlchemyPlugin
 from litestar.security.session_auth import SessionAuth
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
-from views import admin_htmx_blocks, base, orders_htmx_blocks
+from web.auth import retrieve_user_handler
+from web.dtos import RequestUserDTO
+from web.views import admin_htmx_blocks, base, orders_htmx_blocks
 
 locale.setlocale(locale.LC_ALL, ('ru_RU', 'UTF-8'))
 
-static_files_handler = create_static_files_router(path='/static', directories=[Path('static')], name='static')
+static_files_handler = create_static_files_router(path='/static', directories=[Path('web/static')], name='static')
 
 route_handlers = [
     base.login_page,
@@ -41,10 +41,10 @@ route_handlers = [
     static_files_handler,
 ]
 
-template_config = TemplateConfig(directory=Path('templates'), engine=JinjaTemplateEngine)
+template_config = TemplateConfig(directory=Path('web/templates'), engine=JinjaTemplateEngine)
 
-session_auth = SessionAuth[entities.User, ServerSideSessionBackend](
-    retrieve_user_handler=common_utils.retrieve_user_handler,
+session_auth = SessionAuth[RequestUserDTO, ServerSideSessionBackend](
+    retrieve_user_handler=retrieve_user_handler,
     session_backend_config=ServerSideSessionConfig(),
     exclude=['/login', '/schema', '/static/styles.css', '/static/favicon.ico'],
 )
@@ -54,22 +54,12 @@ exception_handlers = {
     NotFoundException: page_not_found_error_handler,
 }
 
-
-db_config = SQLAlchemyAsyncConfig(
-    connection_string='sqlite+aiosqlite:///db.sqlite3',
-    metadata=Base.metadata,
-    create_all=True,
-    before_send_handler='autocommit',
-    engine_config=EngineConfig(echo=True),
-)
-
-
 app = Litestar(
     route_handlers=route_handlers,
     request_class=HTMXRequest,
     template_config=template_config,
     on_app_init=[session_auth.on_app_init],
     exception_handlers=exception_handlers,
-    dependencies={'db_session': common_utils.provide_transaction},
-    plugins=[SQLAlchemyPlugin(db_config)],
+    dependencies={'db_session': provide_db_session},
+    plugins=[SQLAlchemyPlugin(DatabaseConfig.config)],
 )

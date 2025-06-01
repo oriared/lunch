@@ -2,13 +2,14 @@ import datetime
 
 from core import entities
 from core.consts import CategoryCode
-from core.sqlalchemy_storages import DishSQLAlchemyStorage, OrderSQLAlchemyStorage, UserSQLAlchemyStorage
+from core.database.storages import DishStorage, OrderStorage, UserStorage
+from core.dtos import UserCreateOrUpdateDTO
 
 
-class UserManager:
+class UserRepo:
     def __init__(self, user: entities.User | None = None, **kwargs) -> None:  # noqa: ANN003
         self.user = user
-        self.storage = UserSQLAlchemyStorage(session=kwargs['session'])
+        self.storage = UserStorage(session=kwargs['session'])
 
     class UserNotFoundError(Exception):
         pass
@@ -23,21 +24,21 @@ class UserManager:
     async def get_by_username(self, username: str) -> entities.User | None:
         return await self.storage.get_by_username(username=username)
 
-    async def save(self) -> entities.User:
+    async def save(self, user_data: UserCreateOrUpdateDTO) -> entities.User:
         if self.user.id is None:
-            self.user = await self.storage.add(self.user)
+            self.user = await self.storage.add(self.user, user_data)
         else:
-            self.user = await self.storage.update(self.user)
+            self.user = await self.storage.update(self.user, user_data)
         return self.user
 
     async def get_count(self) -> int:
         return await self.storage.get_count()
 
 
-class OrderManager:
+class OrderRepo:
     def __init__(self, order: entities.Order | None = None, **kwargs) -> None:  # noqa: ANN003
         self.order = order
-        self.storage = OrderSQLAlchemyStorage(session=kwargs['session'])
+        self.storage = OrderStorage(session=kwargs['session'])
 
     class OrderNotFoundError(Exception):
         pass
@@ -90,10 +91,10 @@ class OrderManager:
         await self.storage.clear_dishes(order=self.order)
 
 
-class DishManager:
+class DishRepo:
     def __init__(self, dish: entities.Dish | None = None, **kwargs) -> None:  # noqa ANN003, ARG002
         self.dish = dish
-        self.storage = DishSQLAlchemyStorage(session=kwargs['session'])
+        self.storage = DishStorage(session=kwargs['session'])
 
     class DishNotFoundError(Exception):
         pass
@@ -104,24 +105,20 @@ class DishManager:
     async def get_by_ids(self, dish_ids: list[int]) -> list[entities.Dish]:
         return await self.storage.get_by_ids(dish_ids=dish_ids)
 
-    async def get_first_dishes(self, date: datetime.date | None = None) -> list[entities.Dish]:
-        return await self.storage.get_by_category_code(category_code=CategoryCode.FIRST, date=date)
+    async def get_first_dishes(self) -> list[entities.Dish]:
+        return await self.storage.get_by_category_code(category_code=CategoryCode.FIRST)
 
-    async def get_vegan_dishes(self, date: datetime.date | None = None) -> list[entities.Dish]:
-        return await self.storage.get_by_category_code(category_code=CategoryCode.VEGAN, date=date)
+    async def get_vegan_dishes(self) -> list[entities.Dish]:
+        return await self.storage.get_by_category_code(category_code=CategoryCode.VEGAN)
 
-    async def get_standard_second_dishes(self, date: datetime.date | None = None) -> list[entities.Dish]:
-        return await self.storage.get_by_category_code(category_code=CategoryCode.SECOND_STANDARD, date=date)
+    async def get_standard_second_dishes(self) -> list[entities.Dish]:
+        return await self.storage.get_by_category_code(category_code=CategoryCode.SECOND_STANDARD)
 
-    async def get_constructor_second_dishes_first_part(self, date: datetime.date | None = None) -> list[entities.Dish]:
-        return await self.storage.get_by_category_code(
-            category_code=CategoryCode.SECOND_CONSTRUCTOR_MAIN_PART, date=date
-        )
+    async def get_constructor_second_dishes_first_part(self) -> list[entities.Dish]:
+        return await self.storage.get_by_category_code(category_code=CategoryCode.SECOND_CONSTRUCTOR_MAIN_PART)
 
-    async def get_constructor_second_dishes_second_part(self, date: datetime.date | None = None) -> list[entities.Dish]:
-        return await self.storage.get_by_category_code(
-            category_code=CategoryCode.SECOND_CONSTRUCTOR_SIDE_PART, date=date
-        )
+    async def get_constructor_second_dishes_second_part(self) -> list[entities.Dish]:
+        return await self.storage.get_by_category_code(category_code=CategoryCode.SECOND_CONSTRUCTOR_SIDE_PART)
 
     async def get_by_order_id(self, order_id: int) -> list[entities.Dish]:
         return await self.storage.get_by_order_id(order_id=order_id)

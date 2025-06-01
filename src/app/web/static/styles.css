@@ -346,6 +346,10 @@ h2 {
     color: white;
 }
 
+.dish-value-disabled {
+    color: #A9A9A9;
+}
+
 .two-selects {
     display: flex;
     width: 100%;

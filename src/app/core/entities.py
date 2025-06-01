@@ -14,6 +14,14 @@ class User:
 
 
 @dataclass
+class Order:
+    id: int | None
+    date: datetime.date
+    user_id: int | None = None
+    comment: str | None = None
+
+
+@dataclass
 class Category:
     id: int | None
     code: str
@@ -25,11 +33,3 @@ class Dish:
     id: int | None
     name: str
     weekday: int | None = None
-
-
-@dataclass
-class Order:
-    id: int | None
-    date: datetime.date
-    user_id: int | None = None
-    comment: str | None = None

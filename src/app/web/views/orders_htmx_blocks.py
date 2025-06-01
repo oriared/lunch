@@ -1,10 +1,10 @@
 import datetime
 from math import ceil
 
-import consts
-from core import datatools, entities
+from core import entities
 from core.consts import DEADLINE_TIME, DishMode
-from core.interactors import DishManager, OrderManager, UserManager
+from core.repositories import DishRepo, OrderRepo, UserRepo
+from core.services import calendar, dish
 from litestar import get, post
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate
@@ -12,13 +12,14 @@ from litestar.exceptions import NotFoundException
 from litestar.response import Redirect
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from views.utils import get_selected_date_for_order_form
+from web import consts
+from web.views.utils import get_selected_date_for_order_form
 
 
 @get(path='/my-orders')
 async def my_orders(request: HTMXRequest, db_session: AsyncSession, page: int = 1) -> HTMXTemplate:
-    orders_count = await OrderManager(session=db_session).get_user_orders_count(user_id=request.user.id)
-    orders = await OrderManager(session=db_session).get_by_user_id(
+    orders_count = await OrderRepo(session=db_session).get_user_orders_count(user_id=request.user.id)
+    orders = await OrderRepo(session=db_session).get_by_user_id(
         user_id=request.user.id, page=page, per_page=consts.ORDERS_PER_PAGE
     )
     page_orders = [
@@ -27,14 +28,16 @@ async def my_orders(request: HTMXRequest, db_session: AsyncSession, page: int = 
             'date': order.date,
             'comment': order.comment,
             'dishes': ', '.join(
-                dish.name for dish in await DishManager(session=db_session).get_by_order_id(order.id)
+                dish.name for dish in await DishRepo(session=db_session).get_by_order_id(order.id)
             ).capitalize(),
         }
         for order in orders
     ]
+    today = datetime.date.today()
     context = {
         'orders': page_orders,
-        'today': datetime.date.today(),
+        'today': today,
+        'isoweekday': today.isoweekday(),
         'selected_module': 'my-orders',
         'page': page,
         'pages_count': ceil(orders_count / consts.ORDERS_PER_PAGE) or 1,
@@ -51,8 +54,8 @@ async def order_form(
     is_admin: bool = False,
     anonymous: bool = False,
 ) -> HTMXTemplate:
-    date_choices = datatools.get_dates_available_for_making_order()
-    order = await OrderManager(session=db_session).get_by_id(order_id=order_id) if order_id else None
+    date_choices = calendar.get_dates_available_for_making_order()
+    order = await OrderRepo(session=db_session).get_by_id(order_id=order_id) if order_id else None
 
     selected_date = await get_selected_date_for_order_form(
         db_session=db_session,
@@ -65,41 +68,36 @@ async def order_form(
         raise NotFoundException('Нет доступных дат для заказа')
 
     if not order and not anonymous:
-        user_orders = await OrderManager(session=db_session).get_by_user_id_and_date(
+        user_orders = await OrderRepo(session=db_session).get_by_user_id_and_date(
             date=selected_date, user_id=request.user.id
         )
         if user_orders:
             order = user_orders[0]
 
     context = {
+        'isoweekday': selected_date.isoweekday(),
         'selected_module': 'order-form',
         'date_choices': date_choices,
-        'dishes': await DishManager(session=db_session).get_first_dishes(date=selected_date),
-        'second_dishes': await DishManager(session=db_session).get_standard_second_dishes(date=selected_date),
-        'second_dishes_first_part': await DishManager(session=db_session).get_constructor_second_dishes_first_part(
-            date=selected_date
-        ),
-        'second_dishes_second_part': await DishManager(session=db_session).get_constructor_second_dishes_second_part(
-            date=selected_date
-        ),
+        'dishes': await DishRepo(session=db_session).get_first_dishes(),
+        'second_dishes': await DishRepo(session=db_session).get_standard_second_dishes(),
+        'second_dishes_first_part': await DishRepo(session=db_session).get_constructor_second_dishes_first_part(),
+        'second_dishes_second_part': await DishRepo(session=db_session).get_constructor_second_dishes_second_part(),
         'selected_date': selected_date,
         'selected_dish_mode': DishMode.STANDARD,
         'is_admin': is_admin,
         'anonymous': anonymous,
-        'order_user': await UserManager(session=db_session).get_by_id(user_id=request.user.id)
-        if not anonymous
-        else None,
+        'order_user': await UserRepo(session=db_session).get_by_id(user_id=request.user.id) if not anonymous else None,
     }
 
     if order:
-        selected_second_dish_first_part = await DishManager(session=db_session).get_order_second_dish_first_part(
+        selected_second_dish_first_part = await DishRepo(session=db_session).get_order_second_dish_first_part(
             order_id=order.id
         )
-        selected_second_dish_second_part = await DishManager(session=db_session).get_order_second_dish_second_part(
+        selected_second_dish_second_part = await DishRepo(session=db_session).get_order_second_dish_second_part(
             order_id=order.id
         )
         if selected_second_dish_first_part:
-            dish_mode = await datatools.get_dish_mode(db_session=db_session, dish=selected_second_dish_first_part)
+            dish_mode = await dish.get_dish_mode(db_session=db_session, dish=selected_second_dish_first_part)
         elif selected_second_dish_second_part:
             dish_mode = DishMode.CONSTRUCTOR
         else:
@@ -108,13 +106,13 @@ async def order_form(
         context.update(
             {
                 'order': order,
-                'selected_first_dish': await DishManager(session=db_session).get_order_first_dish(order_id=order.id),
-                'selected_second_dish': await DishManager(session=db_session).get_order_second_dish(order_id=order.id),
+                'selected_first_dish': await DishRepo(session=db_session).get_order_first_dish(order_id=order.id),
+                'selected_second_dish': await DishRepo(session=db_session).get_order_second_dish(order_id=order.id),
                 'selected_second_dish_first_part': selected_second_dish_first_part,
                 'selected_second_dish_second_part': selected_second_dish_second_part,
                 'selected_dish_mode': dish_mode,
                 'comment': order.comment,
-                'order_user': await UserManager(session=db_session).get_by_id(user_id=order.user_id)
+                'order_user': await UserRepo(session=db_session).get_by_id(user_id=order.user_id)
                 if order.user_id
                 else None,
             }
@@ -126,25 +124,27 @@ async def order_form(
 @get(path='/first-dishes')
 async def first_dishes(date: datetime.date, db_session: AsyncSession, vegan: bool | None = None) -> HTMXTemplate:
     dishes = (
-        await DishManager(session=db_session).get_vegan_dishes(date=date)
+        await DishRepo(session=db_session).get_vegan_dishes()
         if vegan
-        else await DishManager(session=db_session).get_first_dishes(date=date)
+        else await DishRepo(session=db_session).get_first_dishes()
     )
-    return HTMXTemplate(template_name='first-dishes.html', context={'dishes': dishes}, push_url=False)
+    return HTMXTemplate(
+        template_name='first-dishes.html', context={'dishes': dishes, 'isoweekday': date.isoweekday()}, push_url=False
+    )
 
 
 @get(path='/second-dishes')
 async def second_dishes(date: datetime.date, dish_mode: str, db_session: AsyncSession) -> HTMXTemplate:
-    context = {'selected_dish_mode': dish_mode}
+    context = {'selected_dish_mode': dish_mode, 'isoweekday': date.isoweekday()}
     if dish_mode == DishMode.STANDARD:
-        context['second_dishes'] = await DishManager(session=db_session).get_standard_second_dishes(date=date)
+        context['second_dishes'] = await DishRepo(session=db_session).get_standard_second_dishes()
     elif dish_mode == DishMode.CONSTRUCTOR:
-        context['second_dishes_first_part'] = await DishManager(
+        context['second_dishes_first_part'] = await DishRepo(
             session=db_session
-        ).get_constructor_second_dishes_first_part(date=date)
-        context['second_dishes_second_part'] = await DishManager(
+        ).get_constructor_second_dishes_first_part()
+        context['second_dishes_second_part'] = await DishRepo(
             session=db_session
-        ).get_constructor_second_dishes_second_part(date=date)
+        ).get_constructor_second_dishes_second_part()
     return HTMXTemplate(template_name='second-dishes.html', context=context, push_url=False)
 
 
@@ -159,12 +159,14 @@ async def save_order(
 ) -> HTMXTemplate:
     form = await request.form()
 
+    today = datetime.date.today()
     context: dict = {
-        'today': datetime.date.today(),
+        'today': today,
+        'isoweekday': today.isoweekday(),
         'selected_module': 'my-orders',
     }
 
-    order = await OrderManager(session=db_session).get_by_id(order_id=order_id) if order_id else None
+    order = await OrderRepo(session=db_session).get_by_id(order_id=order_id) if order_id else None
     order_date = datetime.date.fromisoformat(form['order_date'])
 
     if not request.user.is_admin and (order.date if order else order_date) <= datetime.date.today():
@@ -191,7 +193,7 @@ async def save_order(
         if order:
             order.date = order_date
             order.comment = form.get('comment', '')
-            await OrderManager(session=db_session, order=order).clear_dishes()
+            await OrderRepo(session=db_session, order=order).clear_dishes()
         else:
             order = entities.Order(
                 id=None,
@@ -199,23 +201,23 @@ async def save_order(
                 user_id=request.user.id if not anonymous else None,
                 comment=form.get('comment', ''),
             )
-        order = await OrderManager(session=db_session, order=order).save()
+        order = await OrderRepo(session=db_session, order=order).save()
 
         dishes_ids = [
             i for i in (form['first_dish'], form['second_dish_first_part'], form.get('second_dish_second_part')) if i
         ]
-        await OrderManager(session=db_session, order=order).add_dishes(dishes_ids=dishes_ids)
+        await OrderRepo(session=db_session, order=order).add_dishes(dishes_ids=dishes_ids)
 
         context['updated_order'] = order
     elif order:
-        await OrderManager(session=db_session, order=order).delete()
+        await OrderRepo(session=db_session, order=order).delete()
 
     if is_admin:
-        orders_count = await OrderManager(session=db_session).get_count()
-        orders = await OrderManager(session=db_session).get_all(page=page, per_page=consts.ORDERS_PER_PAGE)
+        orders_count = await OrderRepo(session=db_session).get_count()
+        orders = await OrderRepo(session=db_session).get_all(page=page, per_page=consts.ORDERS_PER_PAGE)
     else:
-        orders_count = await OrderManager(session=db_session).get_user_orders_count(user_id=request.user.id)
-        orders = await OrderManager(session=db_session).get_by_user_id(
+        orders_count = await OrderRepo(session=db_session).get_user_orders_count(user_id=request.user.id)
+        orders = await OrderRepo(session=db_session).get_by_user_id(
             user_id=request.user.id, page=page, per_page=consts.ORDERS_PER_PAGE
         )
 
@@ -225,9 +227,9 @@ async def save_order(
             'date': order.date,
             'comment': order.comment,
             'dishes': ', '.join(
-                dish.name for dish in await DishManager(session=db_session).get_by_order_id(order.id)
+                dish.name for dish in await DishRepo(session=db_session).get_by_order_id(order.id)
             ).capitalize(),
-            'user': await UserManager(session=db_session).get_by_id(order.user_id),
+            'user': await UserRepo(session=db_session).get_by_id(order.user_id),
         }
         for order in orders
     ]
@@ -247,8 +249,8 @@ async def save_order(
 
 @post(path='/cancel-order')
 async def cancel_order(order_id: int, db_session: AsyncSession) -> Redirect:
-    order = await OrderManager(session=db_session).get_by_id(order_id=order_id)
-    await OrderManager(session=db_session, order=order).delete()
+    order = await OrderRepo(session=db_session).get_by_id(order_id=order_id)
+    await OrderRepo(session=db_session, order=order).delete()
     await db_session.commit()
 
     return Redirect('/my-orders')
